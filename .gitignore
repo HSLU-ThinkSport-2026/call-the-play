@@ -1,0 +1,4 @@
+/data/
+*.mp4
+*.mov
+scripts/moments_config.local.json

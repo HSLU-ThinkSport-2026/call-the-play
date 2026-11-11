@@ -1,0 +1,154 @@
+/* Tokens: see ../DESIGN.md */
+:root {
+  /* Spengler Cup site palette (site.css): navy #07234A, teal #4BB2CF */
+  --page: #07234A;
+  --page-2: #0E3164;
+  --ink: #F4F8FB;
+  --ink-dim: #B4C6DA;
+  --ice: #EAF6FA;
+  --rink-line: #B7D3DE;
+  --blue-line: #3A6FD8;
+  --red-line: #D64545;
+  --home: #07234A;
+  --away: #F2C200; /* away-team yellow */
+  --away-edge: #8A6A00; /* outline so yellow reads on the ice */
+  --accent: #4BB2CF;
+  --accent-ink: #07234A;
+  --accent-hover: #6CC4DB;
+  --ink-light: #07234A; /* text and marks on light surfaces: ice, scale bar, end-screen marks */
+  --puck: #111;
+  --yes: #7FE0A8;
+  --no: #FFB4A8;
+  --radius: 8px; /* the site's cards and ticker header are 8–10 px */
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+h1 { font-size: 17px; line-height: 24px; margin: 0; letter-spacing: .02em; }
+.progress { margin: 0; color: var(--ink-dim); font-size: 13px; line-height: 18px; }
+
+.panel { background: var(--page-2); border-radius: var(--radius); padding: 16px; margin-top: 12px; }
+.question { font-size: 24px; line-height: 28px; font-weight: 700; margin: 0 0 16px; }
+.sentence { margin: 0 0 16px; }
+
+/* Height cap keeps the question and buttons on screen without scrolling; svh accounts for the phone browser bar. */
+.rink { display: block; width: 100%; height: auto; max-height: 38vh; max-height: 38svh; border-radius: var(--radius); background: var(--ice); }
+.rink .boards { fill: none; stroke: var(--rink-line); }
+.rink .goal-line { stroke: var(--red-line); }
+.rink .centre-line { stroke: var(--red-line); }
+.rink .blue-line { stroke: var(--blue-line); }
+.rink .crease { fill: rgba(75, 178, 207, .2); stroke: var(--blue-line); }
+.rink .net { fill: none; stroke: var(--red-line); }
+.rink .skater { stroke: var(--ice); }
+.rink .home { fill: var(--home); }
+.rink .away { fill: var(--away); stroke: var(--away-edge); }
+.rink .goalie { stroke: var(--ink-dim); }
+.rink .goalie.away { stroke: var(--away-edge); }
+.rink .ring { fill: none; stroke: var(--accent); }
+.rink .ring-def { stroke: var(--ink-dim); stroke-dasharray: 3px 2px; }
+.rink .guide { stroke: var(--accent); stroke-dasharray: 5px 4px; fill: none; }
+.rink .puck { fill: var(--puck); stroke: var(--ice); stroke-width: .15; }
+/* --u shrinks the SVG units back down when the view is zoomed, so label size on screen stays constant */
+.rink .label { font: 700 calc(1.25px * var(--u, 1)) ui-sans-serif, system-ui, sans-serif; fill: var(--ink-light); paint-order: stroke; stroke: var(--ice); stroke-width: calc(.35px * var(--u, 1)); }
+/* Lines keep a fixed on-screen width however far the view is zoomed (a 12 m crop made the net and goal line look like bars). */
+.rink .boards, .rink .goal-line, .rink .centre-line, .rink .blue-line, .rink .crease, .rink .net, .rink .skater, .rink .ring, .rink .ring-def, .rink .guide { vector-effect: non-scaling-stroke; }
+.rink .boards { stroke-width: 2px; } .rink .goal-line { stroke-width: 2px; } .rink .centre-line { stroke-width: 2px; }
+.rink .blue-line { stroke-width: 3px; } .rink .crease { stroke-width: 1.5px; } .rink .net { stroke-width: 2.5px; }
+.rink .skater { stroke-width: 1.5px; } .rink .ring { stroke-width: 3px; } .rink .ring-def { stroke-width: 1.5px; } .rink .guide { stroke-width: 2px; }
+.rink .faint { opacity: .45; }
+
+.answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+button {
+  font: inherit; font-weight: 700; min-height: 52px; padding: 0 16px; border-radius: var(--radius);
+  border: 2px solid var(--accent); background: transparent; color: var(--ink); cursor: pointer;
+}
+button:hover { background: rgba(75, 178, 207, .16); }
+button:active { transform: translateY(1px); background: rgba(75, 178, 207, .28); }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button.primary { background: var(--accent); color: var(--accent-ink); width: auto; min-height: 44px; padding: 0 28px; font-size: 16px; }
+button.primary:hover { background: var(--accent-hover); }
+button:disabled { cursor: default; opacity: .6; }
+
+.recap { margin: 0 0 12px; color: var(--ink-dim); font-size: 15px; line-height: 20px; }
+.recap strong { color: var(--ink); }
+
+
+
+
+/* ---------- the card inside the modal ---------- */
+.context { margin: 0 0 4px; color: var(--ink-dim); font-size: 13px; line-height: 18px; }
+.modal-card .rink { max-height: 34vh; max-height: 34svh; }
+.watching { color: var(--ink-dim); }
+button.ghost { position: relative; min-height: 40px; border-color: rgba(255,255,255,.3); font-weight: 600; font-size: 15px; }
+
+/* answer screen */
+.headline { font-size: 28px; line-height: 34px; font-weight: 700; margin: 0 0 8px; }
+.source { margin: 12px 0 0; color: var(--ink-dim); font-size: 13px; line-height: 18px; }
+.recap.one-line { margin: 0; }
+.recap .watching { margin-left: 6px; }
+
+/* reasons screen */
+.why-title { font-size: 22px; line-height: 28px; margin: 0 0 12px; }
+.reasons { margin: 0 0 16px; padding: 0; list-style: none; }
+.reasons li { margin: 0 0 10px; color: var(--ink-dim); }
+.reasons li.now { color: var(--ink); font-weight: 600; }
+/* on the ice colour, so the team colours read exactly as they do on the rink */
+/* the key is the bottom strip of the diagram: same ice colour, the rink's bottom corners squared off to join it */
+.why-rink .rink { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.key-list { list-style: none; margin: 0; padding: 8px 12px 10px; border-radius: 0 0 var(--radius) var(--radius); border-top: 1px solid var(--rink-line); background: var(--ice); display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; line-height: 20px; color: var(--ink-light); font-weight: 600; }
+.key-list li { display: inline-flex; align-items: center; gap: 6px; }
+.key-list svg { width: 16px; height: 16px; flex: none; }
+.key-list .k-home { fill: var(--home); stroke: var(--ice); stroke-width: 1.2; }
+.key-list .k-away { fill: var(--away); stroke: var(--away-edge); stroke-width: 1.2; }
+.key-list .k-ink { fill: var(--ink-light); }
+.key-list .k-ring { fill: none; stroke: var(--accent); stroke-width: 1.4; }
+.key-list .k-puck { fill: var(--puck); stroke: var(--ice); stroke-width: 1; }
+
+/* right/wrong line on the answer screen, and the conclusion after the last reason. Text and symbol carry the meaning, colour only backs it up. */
+.mark { font-weight: 800; font-size: 18px; line-height: 24px; margin: 0 0 8px; }
+.mark.yes { color: var(--yes); }
+.mark.no { color: var(--no); }
+.conclusion { margin: 0 0 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.2); }
+
+/* names the shooter on the paused frame */
+.who { margin: 0 0 6px; font-size: 14px; line-height: 20px; color: var(--ink-dim); display: flex; align-items: center; gap: 8px; }
+.who strong { color: var(--ink); }
+/* invisible hit-area growth: inset is measured from the padding box (inside the 2px border), so -6px adds 4px beyond the border edge each side; 36px desktop / 40px phone buttons become 44px / 48px */
+button.ghost::after { content: ""; position: absolute; inset: -6px 0; }
+/* team swatch as in the rink key: the team's disc on a small ice tile (a navy disc alone vanishes on the navy card) */
+.who-dot { width: 22px; height: 22px; border-radius: 6px; flex: none; }
+.who-dot.home { background: radial-gradient(circle, var(--home) 6px, var(--ice) 6.5px); }
+.who-dot.away { background: radial-gradient(circle, var(--away) 5.5px, var(--away-edge) 6px, var(--away-edge) 7px, var(--ice) 7.5px); }
+
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+#widget:focus { outline: none; }
+
+/* end screen: one row per call, your answer next to the data's */
+.recap-list { list-style: none; margin: 0 0 16px; padding: 0; }
+.recap-list li { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.15); font-size: 15px; line-height: 20px; }
+.recap-list li:first-child { border-top: 0; }
+.rc-mark { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; }
+.rc-mark.yes { background: var(--yes); color: var(--ink-light); }
+.rc-mark.no { background: var(--no); color: var(--ink-light); }
+.rc-body { color: var(--ink-dim); }
+.rc-body strong { color: var(--ink); }
+
+/* the one scale */
+.scale { margin: 0 0 12px; max-width: 420px; }
+.scale-track { position: relative; display: flex; height: 28px; margin-top: 12px; font-size: 12px; line-height: 28px; font-weight: 700; color: var(--ink-light); }
+.scale-track .seg { text-align: center; white-space: nowrap; }
+.scale-track .long { flex: 20 1 0; background: #B4C6DA; border-radius: 999px 0 0 999px; }
+.scale-track .real { flex: 80 1 0; background: var(--accent); border-radius: 0 999px 999px 0; }
+/* marker: a triangle above the bar, so it never covers the labels */
+.scale-track .pin { position: absolute; top: -11px; width: 0; height: 0; margin-left: -7px; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 10px solid #fff; filter: drop-shadow(0 0 1px var(--ink-light)); }
+.scale-cap { margin: 4px 0 0; font-size: 12px; line-height: 16px; color: var(--ink-dim); }
+.watch { margin: 0 0 10px; font-weight: 600; }
+.question:focus { outline: none; }
+.takeaway { color: var(--ink-dim); font-size: 14px; line-height: 20px; }

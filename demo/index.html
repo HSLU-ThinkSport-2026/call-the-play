@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home vs. Away – Call the play (mock-up)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="style.css?v=59">
+  <link rel="stylesheet" href="site.css?v=59">
+</head>
+<body>
+  <!-- Mock-up of the tournament match page. Layout follows the real site; logos, sponsors and crests are placeholders. Only "Call the play" works. -->
+  <header class="site-header">
+    <p class="mock-label" role="note">Concept mock-up, not the official site</p>
+    <div class="sh-inner">
+      <div class="sh-left">
+        <span class="sh-link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7l4-3h8l4 3-2 3h-2v10H8V10H6z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>FANSHOP</span>
+        <span class="sh-link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l9-9 9 9-9 9z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>TICKETS</span>
+      </div>
+      <div class="wordmark" aria-label="Tournament wordmark (placeholder)">
+        <span class="wm-crown" aria-hidden="true"></span>
+        <span class="wm-text"><b>SPENGLER</b><b>CUP</b> <i>DAVOS</i></span>
+      </div>
+      <div class="sh-right">
+        <span class="sh-lang">DE | <b>EN</b></span>
+        <svg class="sh-search" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15 15l5 5" stroke="currentColor" stroke-width="1.8"/></svg>
+      </div>
+      <div class="sh-menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span>MENU</div>
+    </div>
+  </header>
+
+  <section class="hero" aria-label="Match result">
+    <div class="hero-inner">
+      <div class="hero-teams">
+        <div class="hero-team home"><span class="team-name tn-home">HOME</span><span class="crest crest-home" aria-hidden="true">HOM</span></div>
+        <div class="hero-score" id="hero-score">– : –</div>
+        <div class="hero-team away"><span class="crest crest-away" aria-hidden="true">AWY</span><span class="team-name tn-away">AWAY</span></div>
+      </div>
+      <p class="hero-status">Final</p>
+    </div>
+  </section>
+
+  <main class="page">
+    <nav class="crumbs" aria-label="Breadcrumb">Landing Page <span aria-hidden="true">›</span> <span id="crumb-match">HOM - AWY</span></nav>
+    <nav class="tabs" aria-label="Match sections (only Ticker works in the mock-up)">
+      <span class="tab on">TICKER</span><span class="tab">LINEUP</span><span class="tab">STATS</span><span class="tab">REPORT</span><span class="tab">PREVIEW</span>
+    </nav>
+    <div class="page-grid">
+      <section class="ticker" aria-label="Ticker">
+        <p class="demo-note" id="demo-note" role="note" hidden></p>
+        <div class="promo">
+          <div><p class="promo-title">Call the play</p><p class="promo-text">Six moments from this game. Make your call, then see what the tracking data says.</p></div>
+          <button class="call call-big" data-call="0">Start</button>
+        </div>
+        <div class="ticker-head">
+          <span class="th-team"><span class="crest crest-home small" aria-hidden="true">HOM</span><span class="th-name-home">Home</span></span>
+          <span class="th-time">Time</span>
+          <span class="th-team right"><span class="th-name-away">Away</span><span class="crest crest-away small" aria-hidden="true">AWY</span></span>
+        </div>
+        <ol class="ticker-list" id="ticker-list"></ol>
+      </section>
+      <aside class="ad-slot" aria-label="Advertisement placeholder"><span>Sponsor</span></aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="sf-inner">
+      <div><p class="sf-title">SPENGLER CUP DAVOS</p><p>THE PEAK OF HOCKEY</p><p>26 – 31 DECEMBER</p></div>
+      <div><p class="sf-muted">Mock-up for the SIC Data-hack 2026</p><p class="sf-muted">Hochschule Luzern Team</p></div>
+    </div>
+    <p class="sf-links">Imprint | Newsletter | Privacy Policy / Terms &amp; Conditions</p>
+  </footer>
+
+  <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <div class="modal-card" id="widget" tabindex="-1">
+      <header class="top">
+        <h1 id="modal-title">Call the play</h1>
+        <p class="progress" id="progress"></p>
+        <button class="modal-close" data-act="close" aria-label="Close">×</button>
+      </header>
+      <p class="context" id="context"></p>
+      <div class="video-wrap" id="video-wrap" hidden>
+        <video id="clip" aria-hidden="true" muted playsinline preload="auto"></video>
+        <div class="video-overlay" id="video-overlay"></div>
+      </div>
+      <div id="app"></div>
+    </div>
+  </div>
+  <script type="module" src="app.js?v=59"></script>
+</body>
+</html>

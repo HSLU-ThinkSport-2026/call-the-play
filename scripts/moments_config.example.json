@@ -1,0 +1,93 @@
+{
+ "team_names": {
+  "Home": {
+   "name": "Home Team",
+   "short": "HOM"
+  },
+  "Away": {
+   "name": "Away Team",
+   "short": "AWY"
+  }
+ },
+ "moments": [
+  {
+   "id": "c1_good_spot",
+   "period": 1,
+   "clock": 600,
+   "event": "Shot",
+   "who": "Surname",
+   "expect": {
+    "xg": 0.0
+   }
+  },
+  {
+   "id": "c2_save",
+   "period": 1,
+   "clock": 600,
+   "event": "Shot",
+   "who": "Surname",
+   "expect": {
+    "xg": 0.0,
+    "goalie": "Surname"
+   }
+  },
+  {
+   "id": "c3_deserved",
+   "period": 1,
+   "clock": 600,
+   "event": "Shot",
+   "who": "Surname",
+   "expect": {
+    "xg": 0.0,
+    "goalie": "Surname"
+   }
+  },
+  {
+   "id": "c4_lucky",
+   "period": 1,
+   "clock": 600,
+   "event": "Shot",
+   "who": "Surname",
+   "expect": {
+    "xg": 0.0,
+    "goalie": "Surname",
+    "screening": 0
+   }
+  },
+  {
+   "id": "c5_miss",
+   "period": 1,
+   "clock": 600,
+   "event": "Shot",
+   "who": "Surname",
+   "expect": {
+    "xg": 0.0
+   }
+  },
+  {
+   "id": "c6_powerplay",
+   "period": 1,
+   "clock": 600,
+   "event": "Shot",
+   "who": "Surname",
+   "expect": {
+    "xg": 0.0,
+    "goalie": "Surname"
+   }
+  },
+  {
+   "id": "p1_penalty",
+   "period": 1,
+   "clock": 600,
+   "event": "Penalty",
+   "who": "Surname",
+   "expect": {
+    "reason": "Reason"
+   }
+  }
+ ],
+ "video": {
+  "file_start_utc": "YYYY-MM-DDTHH:MM:SSZ",
+  "offset_s": 0
+ }
+}

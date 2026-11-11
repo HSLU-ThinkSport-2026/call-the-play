@@ -1,0 +1,232 @@
+/* Mock tournament match page. Layout and colours follow the real match page (screenshot 9 Nov 2026);
+   logos, sponsors and crests are placeholders. The "Call the play" card styles live in style.css. */
+:root {
+  --navy: var(--page); /* same colours as the card tokens in style.css */
+  --navy-2: #0B2D5B;
+  --teal: var(--accent);
+  --teal-dark: #2F7E9B;
+  --text: #1B2A3D;
+  --muted: #6E7C8C;
+  --line: #E3E8EE;
+}
+
+body {
+  background: #fff;
+  color: var(--text);
+  font: 15px/22px "Montserrat", ui-sans-serif, system-ui, sans-serif;
+}
+body.modal-open { overflow: hidden; }
+
+/* ---------- header ---------- */
+.site-header { background: var(--navy); color: #fff; }
+.sh-inner {
+  max-width: 1280px; margin: 0 auto; padding: 12px 24px;
+  display: grid; grid-template-columns: 1fr auto 1fr; grid-template-rows: auto auto; align-items: center; row-gap: 6px;
+}
+.sh-left { display: flex; gap: 24px; font-size: 13px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,.18); padding-bottom: 8px; }
+.sh-link { display: inline-flex; align-items: center; gap: 8px; }
+.sh-link svg { width: 18px; height: 18px; }
+.wordmark { grid-row: 1 / span 2; grid-column: 2; display: flex; align-items: center; gap: 10px; padding: 0 32px; }
+.wm-crown { width: 30px; height: 40px; border: 2.5px solid #fff; border-top: none; border-radius: 0 0 16px 16px; position: relative; }
+.wm-crown::before, .wm-crown::after { content: ""; position: absolute; top: -8px; width: 2.5px; height: 30px; background: #fff; }
+.wm-crown::before { left: 7px; transform: rotate(-12deg); }
+.wm-crown::after { right: 7px; transform: rotate(12deg); }
+.wm-text { display: grid; grid-template-columns: auto auto; column-gap: 6px; line-height: 1; }
+.wm-text b { grid-column: 1 / span 2; font-weight: 800; font-size: 20px; letter-spacing: .02em; }
+.wm-text b + b { grid-column: 1; font-size: 22px; }
+.wm-text i { grid-column: 2; grid-row: 2; font-style: normal; font-weight: 600; font-size: 13px; align-self: end; }
+.sh-right { grid-column: 3; grid-row: 2; display: flex; justify-content: flex-end; align-items: center; gap: 12px; font-size: 14px; }
+.sh-search { width: 18px; height: 18px; }
+.sh-menu { grid-column: 1; grid-row: 2; display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: 14px; padding-left: 12px; }
+.burger { display: inline-grid; gap: 4px; }
+.burger i { display: block; width: 20px; height: 2px; background: #fff; }
+
+/* ---------- hero ---------- */
+.hero {
+  color: #fff; text-align: center;
+  background:
+    radial-gradient(ellipse at 50% 120%, rgba(255,190,90,.28), transparent 55%),
+    radial-gradient(ellipse at 20% 0%, rgba(120,150,200,.25), transparent 50%),
+    linear-gradient(180deg, #1A2433 0%, #2B3546 55%, #1C2430 100%);
+}
+.hero-inner { max-width: 1280px; margin: 0 auto; padding: 28px 24px 44px; }
+.hero-teams { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; margin-top: 22px; }
+.hero-team { display: flex; align-items: center; gap: 16px; font-weight: 800; font-size: 18px; letter-spacing: .03em; }
+.hero-team.home { justify-content: flex-end; }
+.hero-score { font-weight: 800; font-size: 44px; line-height: 1; }
+.hero-status { margin: 14px 0 0; font-weight: 600; font-size: 18px; }
+.crest { display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; font-weight: 800; font-size: 14px; color: #fff; border: 3px solid rgba(255,255,255,.85); flex: none; }
+.crest-home { background: #1F3E78; }
+.crest-away { background: var(--away); color: var(--navy); } /* placeholder crest in away-team yellow */
+.crest.small { width: 36px; height: 36px; font-size: 10px; border-width: 2px; }
+
+/* ---------- page ---------- */
+.page { max-width: 1280px; margin: 0 auto; padding: 36px 24px 72px; }
+.crumbs { font-size: 15px; color: var(--navy); }
+.crumbs span { margin: 0 10px; }
+.tabs { display: flex; gap: 40px; margin: 40px 0 18px; font-weight: 700; font-size: 13px; letter-spacing: .02em; color: #4A5868; overflow-x: auto; }
+.tabs .tab { padding-bottom: 6px; white-space: nowrap; }
+.tabs .tab.on { color: var(--teal); box-shadow: inset 0 -2px 0 var(--teal); }
+.page-grid { display: grid; grid-template-columns: minmax(0, 1fr) 286px; gap: 44px; align-items: start; }
+
+.ad-slot { aspect-ratio: 286 / 396; border-radius: 10px; background: repeating-linear-gradient(135deg, #EEF2F6 0 12px, #E6EBF1 12px 24px); display: grid; place-items: center; color: var(--muted); font-size: 13px; }
+
+/* ---------- Call the play promo + ticker ---------- */
+.promo { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; margin-bottom: 16px; border-radius: 10px; background: var(--navy); color: #fff; }
+.promo-title { margin: 0; font-weight: 800; font-size: 17px; letter-spacing: .04em; text-transform: uppercase; }
+.promo-text { margin: 2px 0 0; font-size: 14px; line-height: 20px; color: #C9D6E6; }
+
+.ticker-head {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px;
+  padding: 14px 18px; border-radius: 8px; color: #fff; font-weight: 700; font-size: 14px;
+  background: linear-gradient(90deg, var(--teal-dark) 0%, #1A4C74 45%, var(--navy) 100%);
+}
+.th-team { display: flex; align-items: center; gap: 12px; }
+.th-team.right { justify-content: flex-end; }
+.th-time { font-weight: 500; font-size: 15px; }
+
+.ticker-list { list-style: none; margin: 0; padding: 0; }
+.t-row { display: grid; grid-template-columns: 1fr 64px 1fr; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.t-row.t-center { grid-template-columns: 1fr; justify-items: center; background: #F5F8FB; }
+.t-time { text-align: center; font-weight: 700; font-size: 14px; color: var(--navy); }
+.t-center .t-time { display: none; }
+.t-home { text-align: right; }
+.t-item { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 14px; line-height: 20px; }
+.t-home .t-item { justify-content: flex-end; }
+.t-item.goal strong { color: var(--navy); }
+.t-item.penalty strong { color: #B45309; }
+.t-item.chance strong { color: var(--teal-dark); }
+.t-empty { padding: 24px 0; text-align: center; color: var(--muted); }
+
+/* style.css styles every <button> for the dark card; reset that for the light page */
+button.call {
+  min-height: 32px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--teal);
+  background: #fff; color: var(--navy); font: 700 12px/16px "Montserrat", sans-serif; letter-spacing: .02em;
+}
+button.call:hover { background: #E8F6FA; }
+button.call-big { min-height: 44px; padding: 0 22px; background: var(--teal); border-color: var(--teal); color: var(--navy); font-size: 14px; }
+button.call-big:hover { background: var(--accent-hover); }
+/* the card's teal focus ring is 2.5:1 on white; the ticker buttons get a navy one (the Start button sits on navy and keeps teal) */
+button.call:not(.call-big):focus-visible { outline-color: var(--navy); }
+
+/* ---------- footer ---------- */
+.site-footer { background: var(--navy); color: #fff; padding: 48px 24px 32px; font-size: 14px; }
+.sf-inner { max-width: 1280px; margin: 0 auto; display: flex; gap: 120px; }
+.site-footer p { margin: 0 0 4px; }
+.sf-title { font-weight: 800; letter-spacing: .03em; }
+.sf-muted { color: #9FB2C8; }
+.sf-links { max-width: 1280px; margin: 32px auto 0 !important; font-size: 13px; }
+
+/* ---------- modal with the card ---------- */
+.modal { position: fixed; inset: 0; background: rgba(4, 14, 30, .72); display: grid; place-items: center; padding: 24px; z-index: 10; }
+.modal[hidden] { display: none; }
+.modal-card {
+  width: 100%; max-width: 480px; max-height: calc(100dvh - 48px); overflow-y: auto;
+  background: var(--page); color: var(--ink); border-radius: 10px; padding: 16px;
+  font: 16px/24px "Montserrat", ui-sans-serif, system-ui, sans-serif;
+}
+/* Same voice as the site: Montserrat, uppercase heavy titles, teal pills for actions. */
+.modal-card .top h1 { font-weight: 800; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; }
+.modal-card button { border-radius: 999px; font-family: inherit; }
+.modal-card .question, .modal-card .headline, .modal-card .why-title { font-weight: 800; letter-spacing: -.005em; }
+.modal-card .rink .label { font-family: "Montserrat", sans-serif; }
+/* The site's ticker-header strip (teal into navy) as the card's title bar, so the pop-up reads as part of the page. */
+.modal-card .top {
+  align-items: center; gap: 12px; margin: -16px -16px 12px; padding: 12px 16px;
+  background: linear-gradient(90deg, var(--teal-dark) 0%, #1A4C74 45%, var(--navy) 100%);
+  border-radius: 10px 10px 0 0;
+}
+.modal-card .top .progress { color: #fff; }
+.modal-card .top h1 { flex: 1; }
+.modal-close { min-height: 44px; width: 44px; padding: 0; border-radius: 50%; border: 1px solid rgba(255,255,255,.3); font-size: 22px; line-height: 1; font-weight: 400; }
+
+.video-wrap { position: relative; border-radius: var(--radius); overflow: hidden; background: #000; margin-bottom: 8px; }
+.video-wrap[hidden] { display: none; }
+.video-wrap video { display: block; width: 100%; aspect-ratio: 16 / 9; }
+.video-overlay:empty { display: none; }
+.video-overlay {
+  position: absolute; inset: auto 0 0 0; padding: 14px;
+  background: linear-gradient(180deg, transparent, rgba(6, 20, 40, .92) 35%);
+}
+.video-overlay .question { font-size: 20px; line-height: 24px; margin-bottom: 10px; }
+.video-overlay .answers button { background: rgba(6, 20, 40, .7); min-height: 44px; }
+
+/* Desktop: while the clip shows, the card widens so the play is big enough to follow.
+   The clip is sized to what fits under the header (and above the answer panel in the answer stage). */
+@media (min-width: 761px) {
+  .modal-card.wide { max-width: min(1120px, 94vw); }
+  .modal-card.wide .video-wrap { width: min(100%, calc((100dvh - 200px) * 16 / 9)); margin-inline: auto; }
+  .modal-card.wide #app { max-width: 760px; margin-inline: auto; }
+  .modal-card.wide .video-overlay { padding: 24px 32px; }
+  .modal-card.wide .video-overlay .question { font-size: 26px; line-height: 32px; }
+  .modal-card.wide .video-overlay .answers { max-width: 560px; }
+  .modal-card.wide .video-overlay > * { max-width: 720px; }
+  /* Reasons: rink left, explanation right, as tall as the clip was, so the window keeps its size. */
+  .modal-card.wide #app.why-layout {
+    max-width: none; display: grid; grid-template-columns: 58fr 42fr; gap: 24px; align-items: start;
+    min-height: min(calc((min(1120px, 94vw) - 32px) * 9 / 16), calc(100dvh - 200px));
+  }
+  .modal-card.wide .why-layout .rink { max-height: calc(min((min(1120px, 94vw) - 32px) * 9 / 16, 100dvh - 200px) - 64px); }
+  .modal-card.wide .why-layout .panel { margin-top: 0; }
+  /* While the clip plays, only a small Skip button in the corner: the play must stay visible. */
+  .modal-card.wide[data-stage="video"] .video-overlay { inset: auto 12px 12px auto; padding: 0; background: none; width: auto; }
+  .modal-card.wide[data-stage="video"] .watch { display: none; }
+  .modal-card.wide[data-stage="video"] .video-overlay button { background: rgba(6, 20, 40, .75); min-height: 36px; font-size: 14px; }
+  .modal-card.wide[data-stage="answer"] .video-overlay { background: linear-gradient(180deg, transparent, rgba(6, 20, 40, .94) 22%); padding-top: 64px; }
+}
+
+/* ---------- phone ---------- */
+@media (max-width: 760px) {
+  .sh-inner { grid-template-columns: auto 1fr auto; grid-template-rows: auto; padding: 10px 16px; }
+  .sh-left { display: none; }
+  .sh-menu { grid-row: 1; grid-column: 1; padding: 0; gap: 0; font-size: 0; }
+  .wordmark { grid-row: 1; grid-column: 2; justify-content: center; padding: 0; }
+  .wm-crown { width: 22px; height: 30px; }
+  .wm-crown::before, .wm-crown::after { height: 22px; }
+  .wm-text b { font-size: 16px; } .wm-text b + b { font-size: 17px; }
+  .sh-right { grid-row: 1; }
+  .sh-search { display: none; }
+  .hero-inner { padding: 18px 16px 28px; }
+  .hero-teams { gap: 10px; margin-top: 16px; }
+  .hero-team { flex-direction: column-reverse; gap: 8px; font-size: 11px; line-height: 14px; }
+  .hero-team.away { flex-direction: column; }
+  .crest { width: 48px; height: 48px; font-size: 12px; }
+  .hero-score { font-size: 34px; }
+  .hero-status { font-size: 15px; margin-top: 10px; }
+  .page { padding: 20px 16px 48px; }
+  .tabs { gap: 24px; margin: 24px 0 14px; }
+  .page-grid { grid-template-columns: 1fr; gap: 24px; }
+  .ad-slot { aspect-ratio: auto; height: 100px; }
+  .promo { flex-direction: column; align-items: stretch; }
+  .ticker-head { padding: 12px; font-size: 12px; }
+  .th-team { gap: 8px; }
+  .t-row { grid-template-columns: 1fr 48px 1fr; gap: 8px; }
+  .t-item { font-size: 13px; line-height: 18px; }
+  .t-home .t-item, .t-away .t-item { flex-direction: column; align-items: inherit; }
+  .t-home .t-item { align-items: flex-end; }
+  .t-away .t-item { align-items: flex-start; }
+  .sf-inner { flex-direction: column; gap: 20px; }
+  /* Phone: the clip is too small to cover; the question sits under the frozen frame instead. */
+  .video-wrap { background: none; overflow: visible; }
+  .video-wrap video { border-radius: var(--radius); background: #000; }
+  .video-overlay { position: static; background: none; padding: 14px 0 0; }
+  .modal { padding: 0; place-items: stretch; }
+  .modal-card { max-width: none; max-height: none; height: 100dvh; border-radius: 0; }
+  .modal-card .top { border-radius: 0; }
+  /* Actions sit at the bottom of the screen, where the thumb is, however short the text above them is. */
+  .modal-card { display: flex; flex-direction: column; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .modal-card > * { flex: none; }
+  .modal-card .video-wrap:not([hidden]) { flex: 1; display: flex; flex-direction: column; margin-bottom: 0; }
+  .modal-card .video-overlay { flex: 1; display: flex; flex-direction: column; }
+  .modal-card #app { flex: 1; display: flex; flex-direction: column; }
+  .modal-card #app:empty { display: none; }
+  .modal-card .panel { flex: 1; display: flex; flex-direction: column; }
+  .modal-card .answers, .modal-card button.primary { margin-top: auto; }
+  .modal-card button.primary { width: 100%; position: sticky; bottom: 0; }
+  .modal-card .answers + *, .modal-card button.primary + .source { margin-top: 12px; }
+}
+
+/* Public-demo label (shown only when the data is synthetic) */
+.demo-note { margin: 0 0 12px; padding: 8px 12px; border-left: 3px solid var(--teal); border-radius: 0 8px 8px 0; background: #EAF6FA; color: var(--navy); font-size: 12px; line-height: 17px; }
+.demo-note[hidden] { display: none; }
+.mock-label { margin: 0; padding: 4px 16px; text-align: center; background: var(--navy-2); color: var(--ink-dim); font-weight: 600; font-size: 13px; line-height: 18px; letter-spacing: .02em; }

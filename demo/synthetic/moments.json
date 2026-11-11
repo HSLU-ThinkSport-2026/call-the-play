@@ -1,0 +1,951 @@
+{
+ "synthetic": true,
+ "goal_line_x_assumed": 26.5,
+ "match": {
+  "goals": [
+   {
+    "period": 1,
+    "clock_s": 872.0,
+    "team": "Away",
+    "player": "#19 Stefan Rask",
+    "strength": "FullStrength"
+   },
+   {
+    "period": 1,
+    "clock_s": 1090.0,
+    "team": "Home",
+    "player": "#17 Oskar Brenner",
+    "strength": "FullStrength"
+   },
+   {
+    "period": 2,
+    "clock_s": 491.0,
+    "team": "Home",
+    "player": "#8 Henrik Solberg",
+    "strength": "HomePowerplay"
+   },
+   {
+    "period": 2,
+    "clock_s": 742.0,
+    "team": "Away",
+    "player": "#14 Mikael Brandvold",
+    "strength": "FullStrength"
+   },
+   {
+    "period": 3,
+    "clock_s": 408.0,
+    "team": "Away",
+    "player": "#22 Nikolai Varga",
+    "strength": "FullStrength"
+   },
+   {
+    "period": 3,
+    "clock_s": 1013.0,
+    "team": "Home",
+    "player": "#21 Dario Vandrell",
+    "strength": "FullStrength"
+   },
+   {
+    "period": 3,
+    "clock_s": 1137.0,
+    "team": "Home",
+    "player": "#23 Viktor Lindqvist",
+    "strength": "FullStrength"
+   }
+  ],
+  "penalties": [
+   {
+    "period": 1,
+    "clock_s": 1004.0,
+    "team": "Home",
+    "player": "#27 Emil Haldane",
+    "reason": "Tripping"
+   },
+   {
+    "period": 2,
+    "clock_s": 455.0,
+    "team": "Away",
+    "player": "#9 Lars Ostrow",
+    "reason": "Hooking"
+   },
+   {
+    "period": 3,
+    "clock_s": 701.0,
+    "team": "Away",
+    "player": "#5 Cormac Teague",
+    "reason": "Interference"
+   }
+  ],
+  "final": {
+   "Home": 4,
+   "Away": 3
+  },
+  "team_names": {
+   "Home": {
+    "name": "Lakeview Lynx",
+    "short": "LYN"
+   },
+   "Away": {
+    "name": "Glacier Rams",
+    "short": "GLR"
+   }
+  }
+ },
+ "moments": [
+  {
+   "id": "c1_good_spot",
+   "period": 2,
+   "match_clock_s": 742.0,
+   "timestamp_ms": 1798003742000.0,
+   "event": "Shot",
+   "strength": "FullStrength",
+   "primary_player": "#14 Mikael Brandvold",
+   "primary_team": "Away",
+   "shot_result": "Goal",
+   "xg": 0.22,
+   "shot_speed": 117.2,
+   "penalty_reason": "",
+   "stoppage_reason": "",
+   "players": [
+    {
+     "id": "920014",
+     "name": "#14 Mikael Brandvold",
+     "team": "Away",
+     "x": -21.0,
+     "y": -1.8,
+     "velocity": 1.4,
+     "direction": 180.4
+    },
+    {
+     "id": "920019",
+     "name": "#19 Stefan Rask",
+     "team": "Away",
+     "x": -19.4,
+     "y": 7.1,
+     "velocity": 4.6,
+     "direction": 308.7
+    },
+    {
+     "id": "920022",
+     "name": "#22 Nikolai Varga",
+     "team": "Away",
+     "x": -15.2,
+     "y": -6.4,
+     "velocity": 1.2,
+     "direction": 80.2
+    },
+    {
+     "id": "920026",
+     "name": "#26 Joakim Hartwell",
+     "team": "Away",
+     "x": -6.1,
+     "y": -2.2,
+     "velocity": 5.3,
+     "direction": 199.8
+    },
+    {
+     "id": "920005",
+     "name": "#5 Cormac Teague",
+     "team": "Away",
+     "x": -11.8,
+     "y": 9.4,
+     "velocity": 6.8,
+     "direction": 196.7
+    },
+    {
+     "id": "920001",
+     "name": "#1 Anders Pellman",
+     "team": "Away",
+     "x": 24.8,
+     "y": 0.4,
+     "velocity": 6.4,
+     "direction": 275.8
+    },
+    {
+     "id": "910031",
+     "name": "#31 Jonas Marquard",
+     "team": "Home",
+     "x": -25.2,
+     "y": -0.5,
+     "velocity": 6.6,
+     "direction": 210.6
+    },
+    {
+     "id": "910012",
+     "name": "#12 Tobias Reinholt",
+     "team": "Home",
+     "x": -17.6,
+     "y": -4.4,
+     "velocity": 2.4,
+     "direction": 220.5
+    },
+    {
+     "id": "910008",
+     "name": "#8 Henrik Solberg",
+     "team": "Home",
+     "x": -22.8,
+     "y": 7.0,
+     "velocity": 1.3,
+     "direction": 293.2
+    },
+    {
+     "id": "910021",
+     "name": "#21 Dario Vandrell",
+     "team": "Home",
+     "x": -14.0,
+     "y": 2.1,
+     "velocity": 4.1,
+     "direction": 292.5
+    },
+    {
+     "id": "910023",
+     "name": "#23 Viktor Lindqvist",
+     "team": "Home",
+     "x": -12.0,
+     "y": -6.4,
+     "velocity": 6.0,
+     "direction": 243.9
+    },
+    {
+     "id": "910027",
+     "name": "#27 Emil Haldane",
+     "team": "Home",
+     "x": -8.0,
+     "y": 4.0,
+     "velocity": 2.1,
+     "direction": 90.3
+    }
+   ],
+   "derived": {
+    "attack_sign": -1,
+    "goalie": "#31 Jonas Marquard",
+    "goalie_xy": [
+     -25.2,
+     -0.5
+    ],
+    "shot_xy": [
+     -21.0,
+     -1.8
+    ],
+    "distance_to_goal_line_m": 5.8,
+    "nearest_defender": "#12 Tobias Reinholt",
+    "nearest_defender_m": 4.3,
+    "screening_ids": []
+   }
+  },
+  {
+   "id": "c2_save",
+   "period": 3,
+   "match_clock_s": 355.0,
+   "timestamp_ms": 1798004855000.0,
+   "event": "Shot",
+   "strength": "FullStrength",
+   "primary_player": "#12 Tobias Reinholt",
+   "primary_team": "Home",
+   "shot_result": "Saved",
+   "xg": 0.26,
+   "shot_speed": 114.7,
+   "penalty_reason": "",
+   "stoppage_reason": "",
+   "players": [
+    {
+     "id": "910012",
+     "name": "#12 Tobias Reinholt",
+     "team": "Home",
+     "x": 21.7,
+     "y": -1.5,
+     "velocity": 8.0,
+     "direction": 289.0
+    },
+    {
+     "id": "910008",
+     "name": "#8 Henrik Solberg",
+     "team": "Home",
+     "x": 21.5,
+     "y": 6.9,
+     "velocity": 8.6,
+     "direction": 184.4
+    },
+    {
+     "id": "910021",
+     "name": "#21 Dario Vandrell",
+     "team": "Home",
+     "x": 18.3,
+     "y": -5.4,
+     "velocity": 1.0,
+     "direction": 122.2
+    },
+    {
+     "id": "910023",
+     "name": "#23 Viktor Lindqvist",
+     "team": "Home",
+     "x": 12.7,
+     "y": 1.0,
+     "velocity": 5.0,
+     "direction": 104.9
+    },
+    {
+     "id": "910027",
+     "name": "#27 Emil Haldane",
+     "team": "Home",
+     "x": 9.9,
+     "y": 7.1,
+     "velocity": 4.2,
+     "direction": 314.7
+    },
+    {
+     "id": "910031",
+     "name": "#31 Jonas Marquard",
+     "team": "Home",
+     "x": -23.6,
+     "y": 1.9,
+     "velocity": 6.2,
+     "direction": 207.3
+    },
+    {
+     "id": "920001",
+     "name": "#1 Anders Pellman",
+     "team": "Away",
+     "x": 24.6,
+     "y": 1.2,
+     "velocity": 0.6,
+     "direction": 255.2
+    },
+    {
+     "id": "920009",
+     "name": "#9 Lars Ostrow",
+     "team": "Away",
+     "x": 23.6,
+     "y": 0.3,
+     "velocity": 3.4,
+     "direction": 151.6
+    },
+    {
+     "id": "920005",
+     "name": "#5 Cormac Teague",
+     "team": "Away",
+     "x": 20.0,
+     "y": -6.2,
+     "velocity": 3.7,
+     "direction": 210.3
+    },
+    {
+     "id": "920014",
+     "name": "#14 Mikael Brandvold",
+     "team": "Away",
+     "x": 17.0,
+     "y": 4.4,
+     "velocity": 4.5,
+     "direction": 41.8
+    },
+    {
+     "id": "920019",
+     "name": "#19 Stefan Rask",
+     "team": "Away",
+     "x": 14.0,
+     "y": -3.5,
+     "velocity": 4.6,
+     "direction": 269.3
+    },
+    {
+     "id": "920022",
+     "name": "#22 Nikolai Varga",
+     "team": "Away",
+     "x": 12.0,
+     "y": 6.5,
+     "velocity": 5.3,
+     "direction": 176.3
+    }
+   ],
+   "derived": {
+    "attack_sign": 1,
+    "goalie": "#1 Anders Pellman",
+    "goalie_xy": [
+     24.6,
+     1.2
+    ],
+    "shot_xy": [
+     21.7,
+     -1.5
+    ],
+    "distance_to_goal_line_m": 5.0,
+    "nearest_defender": "#9 Lars Ostrow",
+    "nearest_defender_m": 2.6,
+    "screening_ids": []
+   }
+  },
+  {
+   "id": "c3_deserved",
+   "period": 3,
+   "match_clock_s": 1013.0,
+   "timestamp_ms": 1798005513000.0,
+   "event": "Shot",
+   "strength": "FullStrength",
+   "primary_player": "#21 Dario Vandrell",
+   "primary_team": "Home",
+   "shot_result": "Goal",
+   "xg": 0.19,
+   "shot_speed": 104.8,
+   "penalty_reason": "",
+   "stoppage_reason": "",
+   "players": [
+    {
+     "id": "910021",
+     "name": "#21 Dario Vandrell",
+     "team": "Home",
+     "x": 17.2,
+     "y": -0.5,
+     "velocity": 2.5,
+     "direction": 150.8
+    },
+    {
+     "id": "910012",
+     "name": "#12 Tobias Reinholt",
+     "team": "Home",
+     "x": 12.9,
+     "y": 3.8,
+     "velocity": 8.0,
+     "direction": 172.0
+    },
+    {
+     "id": "910008",
+     "name": "#8 Henrik Solberg",
+     "team": "Home",
+     "x": 11.5,
+     "y": -6.2,
+     "velocity": 4.6,
+     "direction": 9.1
+    },
+    {
+     "id": "910023",
+     "name": "#23 Viktor Lindqvist",
+     "team": "Home",
+     "x": 6.0,
+     "y": 0.9,
+     "velocity": 2.2,
+     "direction": 46.3
+    },
+    {
+     "id": "910027",
+     "name": "#27 Emil Haldane",
+     "team": "Home",
+     "x": 4.2,
+     "y": -7.4,
+     "velocity": 0.8,
+     "direction": 253.0
+    },
+    {
+     "id": "910031",
+     "name": "#31 Jonas Marquard",
+     "team": "Home",
+     "x": -23.9,
+     "y": -1.8,
+     "velocity": 7.7,
+     "direction": 36.8
+    },
+    {
+     "id": "920001",
+     "name": "#1 Anders Pellman",
+     "team": "Away",
+     "x": 23.8,
+     "y": 1.0,
+     "velocity": 5.5,
+     "direction": 168.7
+    },
+    {
+     "id": "920009",
+     "name": "#9 Lars Ostrow",
+     "team": "Away",
+     "x": 19.6,
+     "y": 3.0,
+     "velocity": 4.4,
+     "direction": 82.2
+    },
+    {
+     "id": "920005",
+     "name": "#5 Cormac Teague",
+     "team": "Away",
+     "x": 21.5,
+     "y": -5.9,
+     "velocity": 7.7,
+     "direction": 225.0
+    },
+    {
+     "id": "920014",
+     "name": "#14 Mikael Brandvold",
+     "team": "Away",
+     "x": 14.0,
+     "y": 6.6,
+     "velocity": 4.1,
+     "direction": 168.5
+    },
+    {
+     "id": "920019",
+     "name": "#19 Stefan Rask",
+     "team": "Away",
+     "x": 12.0,
+     "y": -7.4,
+     "velocity": 8.0,
+     "direction": 354.4
+    },
+    {
+     "id": "920022",
+     "name": "#22 Nikolai Varga",
+     "team": "Away",
+     "x": 23.0,
+     "y": 5.6,
+     "velocity": 4.9,
+     "direction": 201.0
+    }
+   ],
+   "derived": {
+    "attack_sign": 1,
+    "goalie": "#1 Anders Pellman",
+    "goalie_xy": [
+     23.8,
+     1.0
+    ],
+    "shot_xy": [
+     17.2,
+     -0.5
+    ],
+    "distance_to_goal_line_m": 9.3,
+    "nearest_defender": "#9 Lars Ostrow",
+    "nearest_defender_m": 4.2,
+    "screening_ids": []
+   }
+  },
+  {
+   "id": "c4_lucky",
+   "period": 1,
+   "match_clock_s": 872.0,
+   "timestamp_ms": 1798002372000.0,
+   "event": "Shot",
+   "strength": "FullStrength",
+   "primary_player": "#19 Stefan Rask",
+   "primary_team": "Away",
+   "shot_result": "Goal",
+   "xg": 0.027,
+   "shot_speed": 114.7,
+   "penalty_reason": "",
+   "stoppage_reason": "",
+   "players": [
+    {
+     "id": "920019",
+     "name": "#19 Stefan Rask",
+     "team": "Away",
+     "x": -5.8,
+     "y": -3.5,
+     "velocity": 2.9,
+     "direction": 287.1
+    },
+    {
+     "id": "920022",
+     "name": "#22 Nikolai Varga",
+     "team": "Away",
+     "x": -21.9,
+     "y": -2.6,
+     "velocity": 4.5,
+     "direction": 171.9
+    },
+    {
+     "id": "920026",
+     "name": "#26 Joakim Hartwell",
+     "team": "Away",
+     "x": -14.2,
+     "y": 3.0,
+     "velocity": 7.7,
+     "direction": 155.5
+    },
+    {
+     "id": "920009",
+     "name": "#9 Lars Ostrow",
+     "team": "Away",
+     "x": -2.4,
+     "y": 1.0,
+     "velocity": 2.8,
+     "direction": 96.6
+    },
+    {
+     "id": "920005",
+     "name": "#5 Cormac Teague",
+     "team": "Away",
+     "x": -10.5,
+     "y": -9.5,
+     "velocity": 0.7,
+     "direction": 235.4
+    },
+    {
+     "id": "920001",
+     "name": "#1 Anders Pellman",
+     "team": "Away",
+     "x": 23.9,
+     "y": 1.9,
+     "velocity": 5.3,
+     "direction": 164.5
+    },
+    {
+     "id": "910031",
+     "name": "#31 Jonas Marquard",
+     "team": "Home",
+     "x": -25.6,
+     "y": -0.6,
+     "velocity": 4.7,
+     "direction": 175.7
+    },
+    {
+     "id": "910008",
+     "name": "#8 Henrik Solberg",
+     "team": "Home",
+     "x": -21.0,
+     "y": 3.1,
+     "velocity": 8.0,
+     "direction": 93.4
+    },
+    {
+     "id": "910012",
+     "name": "#12 Tobias Reinholt",
+     "team": "Home",
+     "x": -6.2,
+     "y": -4.0,
+     "velocity": 4.4,
+     "direction": 183.5
+    },
+    {
+     "id": "910021",
+     "name": "#21 Dario Vandrell",
+     "team": "Home",
+     "x": -11.5,
+     "y": -7.4,
+     "velocity": 7.2,
+     "direction": 290.1
+    },
+    {
+     "id": "910023",
+     "name": "#23 Viktor Lindqvist",
+     "team": "Home",
+     "x": -14.9,
+     "y": 6.6,
+     "velocity": 5.0,
+     "direction": 325.7
+    },
+    {
+     "id": "910027",
+     "name": "#27 Emil Haldane",
+     "team": "Home",
+     "x": -3.6,
+     "y": 4.4,
+     "velocity": 7.2,
+     "direction": 113.7
+    }
+   ],
+   "derived": {
+    "attack_sign": -1,
+    "goalie": "#31 Jonas Marquard",
+    "goalie_xy": [
+     -25.6,
+     -0.6
+    ],
+    "shot_xy": [
+     -5.8,
+     -3.5
+    ],
+    "distance_to_goal_line_m": 21.0,
+    "nearest_defender": "#12 Tobias Reinholt",
+    "nearest_defender_m": 0.6,
+    "screening_ids": [
+     "910008",
+     "920022"
+    ]
+   }
+  },
+  {
+   "id": "c5_miss",
+   "period": 3,
+   "match_clock_s": 141.0,
+   "timestamp_ms": 1798004641000.0,
+   "event": "Shot",
+   "strength": "FullStrength",
+   "primary_player": "#26 Joakim Hartwell",
+   "primary_team": "Away",
+   "shot_result": "Missed",
+   "xg": 0.16,
+   "shot_speed": 108.1,
+   "penalty_reason": "",
+   "stoppage_reason": "",
+   "players": [
+    {
+     "id": "920026",
+     "name": "#26 Joakim Hartwell",
+     "team": "Away",
+     "x": -21.2,
+     "y": 1.6,
+     "velocity": 1.2,
+     "direction": 247.5
+    },
+    {
+     "id": "920014",
+     "name": "#14 Mikael Brandvold",
+     "team": "Away",
+     "x": -22.9,
+     "y": -6.4,
+     "velocity": 6.8,
+     "direction": 184.9
+    },
+    {
+     "id": "920019",
+     "name": "#19 Stefan Rask",
+     "team": "Away",
+     "x": -14.4,
+     "y": -3.2,
+     "velocity": 4.1,
+     "direction": 346.5
+    },
+    {
+     "id": "920005",
+     "name": "#5 Cormac Teague",
+     "team": "Away",
+     "x": -9.5,
+     "y": 6.6,
+     "velocity": 8.3,
+     "direction": 302.4
+    },
+    {
+     "id": "920022",
+     "name": "#22 Nikolai Varga",
+     "team": "Away",
+     "x": -6.2,
+     "y": -1.1,
+     "velocity": 4.3,
+     "direction": 23.1
+    },
+    {
+     "id": "920001",
+     "name": "#1 Anders Pellman",
+     "team": "Away",
+     "x": 24.1,
+     "y": 1.8,
+     "velocity": 2.6,
+     "direction": 178.9
+    },
+    {
+     "id": "910031",
+     "name": "#31 Jonas Marquard",
+     "team": "Home",
+     "x": -25.4,
+     "y": -0.4,
+     "velocity": 1.2,
+     "direction": 268.4
+    },
+    {
+     "id": "910023",
+     "name": "#23 Viktor Lindqvist",
+     "team": "Home",
+     "x": -16.6,
+     "y": -1.3,
+     "velocity": 3.8,
+     "direction": 161.3
+    },
+    {
+     "id": "910008",
+     "name": "#8 Henrik Solberg",
+     "team": "Home",
+     "x": -22.5,
+     "y": -5.9,
+     "velocity": 0.5,
+     "direction": 0.1
+    },
+    {
+     "id": "910012",
+     "name": "#12 Tobias Reinholt",
+     "team": "Home",
+     "x": -13.0,
+     "y": 7.1,
+     "velocity": 5.2,
+     "direction": 334.7
+    },
+    {
+     "id": "910021",
+     "name": "#21 Dario Vandrell",
+     "team": "Home",
+     "x": -11.0,
+     "y": -2.0,
+     "velocity": 1.1,
+     "direction": 285.0
+    },
+    {
+     "id": "910027",
+     "name": "#27 Emil Haldane",
+     "team": "Home",
+     "x": -17.9,
+     "y": 8.0,
+     "velocity": 2.4,
+     "direction": 223.0
+    }
+   ],
+   "derived": {
+    "attack_sign": -1,
+    "goalie": "#31 Jonas Marquard",
+    "goalie_xy": [
+     -25.4,
+     -0.4
+    ],
+    "shot_xy": [
+     -21.2,
+     1.6
+    ],
+    "distance_to_goal_line_m": 5.5,
+    "nearest_defender": "#23 Viktor Lindqvist",
+    "nearest_defender_m": 5.4,
+    "screening_ids": []
+   }
+  },
+  {
+   "id": "c6_powerplay",
+   "period": 2,
+   "match_clock_s": 491.0,
+   "timestamp_ms": 1798003491000.0,
+   "event": "Shot",
+   "strength": "HomePowerplay",
+   "primary_player": "#8 Henrik Solberg",
+   "primary_team": "Home",
+   "shot_result": "Goal",
+   "xg": 0.038,
+   "shot_speed": 94.5,
+   "penalty_reason": "",
+   "stoppage_reason": "",
+   "players": [
+    {
+     "id": "910008",
+     "name": "#8 Henrik Solberg",
+     "team": "Home",
+     "x": 17.6,
+     "y": -3.0,
+     "velocity": 8.2,
+     "direction": 240.0
+    },
+    {
+     "id": "910012",
+     "name": "#12 Tobias Reinholt",
+     "team": "Home",
+     "x": 22.0,
+     "y": -7.5,
+     "velocity": 5.6,
+     "direction": 55.6
+    },
+    {
+     "id": "910021",
+     "name": "#21 Dario Vandrell",
+     "team": "Home",
+     "x": 18.6,
+     "y": 6.3,
+     "velocity": 3.0,
+     "direction": 209.3
+    },
+    {
+     "id": "910023",
+     "name": "#23 Viktor Lindqvist",
+     "team": "Home",
+     "x": 9.9,
+     "y": 9.0,
+     "velocity": 6.7,
+     "direction": 341.0
+    },
+    {
+     "id": "910027",
+     "name": "#27 Emil Haldane",
+     "team": "Home",
+     "x": 11.0,
+     "y": -9.4,
+     "velocity": 4.4,
+     "direction": 258.6
+    },
+    {
+     "id": "910031",
+     "name": "#31 Jonas Marquard",
+     "team": "Home",
+     "x": -24.0,
+     "y": -2.0,
+     "velocity": 1.5,
+     "direction": 80.0
+    },
+    {
+     "id": "920001",
+     "name": "#1 Anders Pellman",
+     "team": "Away",
+     "x": 25.1,
+     "y": -0.7,
+     "velocity": 5.2,
+     "direction": 344.0
+    },
+    {
+     "id": "920005",
+     "name": "#5 Cormac Teague",
+     "team": "Away",
+     "x": 19.2,
+     "y": -0.5,
+     "velocity": 7.6,
+     "direction": 181.2
+    },
+    {
+     "id": "920014",
+     "name": "#14 Mikael Brandvold",
+     "team": "Away",
+     "x": 21.8,
+     "y": 6.0,
+     "velocity": 1.1,
+     "direction": 240.0
+    },
+    {
+     "id": "920022",
+     "name": "#22 Nikolai Varga",
+     "team": "Away",
+     "x": 15.0,
+     "y": -9.5,
+     "velocity": 8.1,
+     "direction": 281.3
+    },
+    {
+     "id": "920026",
+     "name": "#26 Joakim Hartwell",
+     "team": "Away",
+     "x": 12.5,
+     "y": 4.8,
+     "velocity": 7.9,
+     "direction": 109.9
+    }
+   ],
+   "derived": {
+    "attack_sign": 1,
+    "goalie": "#1 Anders Pellman",
+    "goalie_xy": [
+     25.1,
+     -0.7
+    ],
+    "shot_xy": [
+     17.6,
+     -3.0
+    ],
+    "distance_to_goal_line_m": 9.4,
+    "nearest_defender": "#5 Cormac Teague",
+    "nearest_defender_m": 3.0,
+    "screening_ids": []
+   }
+  },
+  {
+   "id": "p1_penalty",
+   "period": 2,
+   "match_clock_s": 455.0,
+   "timestamp_ms": 1798003455000.0,
+   "event": "Penalty",
+   "strength": "",
+   "primary_player": "#9 Lars Ostrow",
+   "primary_team": "Away",
+   "shot_result": "",
+   "xg": null,
+   "shot_speed": null,
+   "penalty_reason": "Hooking",
+   "stoppage_reason": ""
+  }
+ ]
+}
