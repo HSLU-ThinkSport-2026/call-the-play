@@ -13,6 +13,12 @@ let data = null;
 let state = { card: 0, stage: "ask", answer: null, cue: 0 };
 let askShownAt = 0; // a second click on "Skip" must not land on the answer that appears under it
 let results = []; // one { card, answer, right } per call, for the end screen
+// Every run plays all six moments: it starts at the one clicked in the ticker, goes on in match order,
+// wraps round to the earlier ones and ends when it is back where it started.
+let runStart = 0;
+const nextCard = (i) => (i + 1) % CARDS.length;
+const runPos = (i) => ((i - runStart + CARDS.length) % CARDS.length) + 1; // 1 = the moment the run started on
+const lastOfRun = (i) => nextCard(i) === runStart;
 const CLIP_URL = (id) => `../data/clips/${id}.mp4`;
 const PAUSE_AT_S = 7.5; // clips start 8 s before the shot; pause just before it for the question
 
@@ -451,7 +457,7 @@ video.addEventListener("error", () => {
 
 function render() {
   const card = CARDS[state.card];
-  progress.textContent = state.stage === "done" ? "" : `Moment ${state.card + 1} of ${CARDS.length}`;
+  progress.textContent = state.stage === "done" ? "" : `Moment ${runPos(state.card)} of ${CARDS.length}`;
   const widget = document.getElementById("widget");
   widget.dataset.stage = state.stage;
   if (state.stage === "done") {
@@ -522,7 +528,7 @@ function render() {
     body = `${recap}<h2 class="why-title">${card.why}</h2>
       <ol class="reasons">${reasons}</ol>
       ${last ? `<p class="conclusion"><strong>So:</strong> ${verdictOf(card)}</p>` : ""}
-      <button class="primary" data-act="${last ? "next" : "cue"}">${last ? (state.card === CARDS.length - 1 ? "See how you did" : "Next moment") : "Next reason"}</button>`;
+      <button class="primary" data-act="${last ? "next" : "cue"}">${last ? (lastOfRun(state.card) ? "See how you did" : "Next moment") : "Next reason"}</button>`;
   }
   if (!onVideo) {
     const show = state.stage === "cue" ? cues[Math.min(state.cue, cues.length - 1)].show : { shotLine: false };
@@ -605,7 +611,7 @@ modal.addEventListener("click", (e) => {
   } else if (act === "skip") { video.currentTime = CARDS[state.card].pauseAt ?? PAUSE_AT_S; video.pause(); state = { ...state, stage: "ask" };
   } else if (act === "why") { video.pause(); state = { ...state, stage: "cue", cue: 0 }; }
   else if (act === "cue") state = { ...state, cue: state.cue + 1 };
-  else if (act === "next") return state.card + 1 >= CARDS.length ? (state = { ...state, stage: "done" }, render()) : startCard(state.card + 1);
+  else if (act === "next") return lastOfRun(state.card) ? (state = { ...state, stage: "done" }, render()) : startCard(nextCard(state.card));
   render();
 });
 
@@ -613,6 +619,8 @@ let opener = null;
 const background = () => [...document.body.children].filter((el) => el !== modal && !el.matches("script, #live"));
 function openModal(i) {
   results = []; // each session recaps only its own calls
+  runStart = i;
+  progress.textContent = ""; // don't show the last run's "Moment N of 6" while the first clip check runs
   opener = document.activeElement;
   background().forEach((el) => el.inert = true);
   modal.hidden = false;
