@@ -332,7 +332,8 @@ function rinkSvg(m, show = {}, fit = [show]) {
   // That suits a phone (~16 px) but grows to ~28 px in the wide desktop window, louder than the text beside it,
   // so cap the on-screen label size at 16 px.
   const labelPx = (1.25 * cardW) / (28 * Math.sqrt(k));
-  const u = ((vx1 - vx0) / 28) * Math.sqrt(k) * Math.min(1, 16 / labelPx);
+  // Floor at 11.5 px so a height cap (short phones) can't shrink labels below readable; ceiling 16 px.
+  const u = ((vx1 - vx0) / 28) * Math.sqrt(k) * Math.min(Math.max(labelPx, 11.5), 16) / labelPx;
   return `<svg class="rink" style="--u:${u}" viewBox="${vx0} ${vy0} ${vx1 - vx0} ${vy1 - vy0}" role="img" aria-label="${alt}">${parts.join("")}</svg>`;
 }
 
@@ -388,6 +389,7 @@ async function startCard(i) {
   } else {
     video.removeAttribute("src");
   }
+  document.getElementById("widget").scrollTop = 0;
   render();
 }
 
@@ -408,6 +410,8 @@ video.addEventListener("error", () => {
   hasClip.set(CARDS[state.card].id, false);
   if (state.stage === "video" || state.stage === "replay") { state = { ...state, stage: state.stage === "video" ? "ask" : "answer" }; }
   video.removeAttribute("src");
+  // On the reasons screens the clip is already paused and out of view; re-rendering would pull a reader who scrolled up back down.
+  if (state.stage === "cue") return;
   render();
 });
 
@@ -418,6 +422,7 @@ function render() {
   widget.dataset.stage = state.stage;
   if (state.stage === "done") {
     videoWrap.hidden = true;
+    widget.scrollTop = 0;
     widget.classList.remove("wide");
     app.classList.remove("why-layout");
     document.getElementById("context").innerHTML = "";
@@ -503,6 +508,23 @@ function render() {
   document.getElementById("context").innerHTML = context;
   app.innerHTML = `${rink}${!body || overClip ? "" : `<section class="panel">${body}</section>`}`;
   announceAndFocus(card, m, cues);
+  revealNewest();
+}
+
+// On a phone the primary button is sticky at the bottom; after a step, make sure the newest content isn't hidden under it.
+function revealNewest() {
+  const widget = document.getElementById("widget");
+  if (!widget || modal.hidden) return;
+  if (state.stage === "video" || state.stage === "replay") return; // a clip is playing: don't jump the scroll
+  widget.scrollTop = 0;
+  if ((widget.classList.contains("wide") && matchMedia("(min-width: 761px)").matches) || (state.stage !== "answer" && state.stage !== "cue")) return;
+  const target = state.stage === "answer" ? widget.querySelector(".mark")
+    : widget.querySelector(".conclusion") || widget.querySelector(".reasons li.now");
+  if (!target) return;
+  const btn = widget.querySelector("button.primary");
+  const limit = Math.min(widget.getBoundingClientRect().bottom, btn ? btn.getBoundingClientRect().top : Infinity);
+  const over = target.getBoundingClientRect().bottom - limit;
+  if (over > 0) widget.scrollTop = over + 12;
 }
 
 // ---------- keyboard and screen-reader handling ----------
@@ -551,7 +573,6 @@ modal.addEventListener("click", (e) => {
   else if (act === "cue") state = { ...state, cue: state.cue + 1 };
   else if (act === "next") return state.card + 1 >= CARDS.length ? (state = { ...state, stage: "done" }, render()) : startCard(state.card + 1);
   render();
-  document.getElementById("widget").scrollTop = 0;
 });
 
 let opener = null;
