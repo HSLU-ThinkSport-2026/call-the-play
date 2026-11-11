@@ -222,7 +222,7 @@ button.call:not(.call-big):focus-visible { outline-color: var(--navy); }
   .modal-card #app { flex: 1; display: flex; flex-direction: column; }
   .modal-card #app:empty { display: none; }
   .modal-card .panel { flex: 1; display: flex; flex-direction: column; }
-  .modal-card .answers, .modal-card button.primary { margin-top: auto; }
+  .modal-card .answers, .modal-card button.primary, .modal-card [data-act="skip"] { margin-top: auto; }
   .modal-card button.primary { width: 100%; position: sticky; bottom: 0; }
   .modal-card .answers + *, .modal-card button.primary + .source { margin-top: 12px; }
 }
