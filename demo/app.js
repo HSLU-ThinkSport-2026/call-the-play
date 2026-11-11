@@ -199,6 +199,9 @@ const CARDS = [
 ];
 
 // ---------- the rink (SVG, goal at the top) ----------
+// Where each card's shooter name went (side, and offset in label lines), decided on the card's first rink and
+// reused on its other screens, so a slightly different rink size can't move the name between screens.
+const namePlace = new Map();
 function rinkSvg(m, show = {}, fit = [show]) {
   const d = m.derived;
   const s = d.attack_sign;
@@ -389,16 +392,47 @@ function rinkSvg(m, show = {}, fit = [show]) {
     if (f.near) r.near.filter((n, i) => (f.near === 1 ? i < 1 : n.m <= f.near)).forEach((n) => ringed.set(n.p.id, n.p));
     if (f.screening) r.screening.forEach((q) => ringed.set(q.id, q));
   });
-  const nameW = 0.64 * lh * label(m.primary_player).length, nameX = shx + (nameRight ? 1.7 : -1.7) * z;
-  const nameL = nameRight ? nameX : nameX - nameW, nameR = nameRight ? nameX + nameW : nameX;
-  const onRing = (y) => [...ringed.values()].some((q) => {
-    const [qx, qy] = P(q.x, q.y), rr = 1.2 * z; // ring radius
-    const cx = Math.min(Math.max(qx, nameL), nameR), cy = Math.min(Math.max(qy, y - 0.85 * lh), y + 0.15 * lh);
-    return Math.hypot(qx - cx, qy - cy) < rr; // ring circle meets the name's box
-  });
-  for (let i = 0; i < 6 && onRing(nameY); i++) nameY += 0.25 * lh;
+  const nameW = 0.64 * lh * label(m.primary_player).length;
+  // Every other skater's dot counts too (faint or not), so the name never sits on a player.
+  const circles = m.players.filter((q) => q !== r.shooter && !(r.goalie && q.id === r.goalie.id))
+    .map((q) => [...P(q.x, q.y), ringed.has(q.id) ? 1.2 * z : 0.7 * z]); // ring radius, or dot radius
+  if (gxy) circles.push([gxy[0], gxy[1], 1.06 * z]); // the goalie's square, by its half-diagonal
+  // The single-defender cue draws that defender pushed just outside the shooter's ring; count that spot too
+  // whenever any of the card's cues shows it, so the name stays put across reasons.
+  if (fit.some((f) => f.near === 1) && r.near[0]) {
+    const [x, y] = P(r.near[0].p.x, r.near[0].p.y), dist = Math.hypot(x - shx, y - shy), minSep = 2.6 * z;
+    if (dist < minSep) {
+      const [ux, uy] = dist > 0.01 ? [(x - shx) / dist, (y - shy) / dist] : [-1, 0];
+      circles.push([shx + ux * minSep, shy + uy * minSep, 1.2 * z]);
+    }
+  }
+  const onRing = (y, right) => {
+    const x = shx + (right ? 1.7 : -1.7) * z, l = right ? x : x - nameW, rgt = right ? x + nameW : x;
+    return circles.some(([qx, qy, rr]) => {
+      const cx = Math.min(Math.max(qx, l), rgt), cy = Math.min(Math.max(qy, y - 0.85 * lh), y + 0.15 * lh);
+      return Math.hypot(qx - cx, qy - cy) < rr; // dot or ring meets the name's box
+    });
+  };
+  // Nearest clear spot, a quarter line at a time, down before up, at most two lines either way, first on the
+  // chosen side, then on the other; it must keep the gap under "Goalie" (same side) and stay inside the rink view.
+  // None clear: the starting spot.
+  const nearGoalieLabel = (y, right) => gxy && right === goalieLabelRight && Math.abs(y - (gxy[1] + 0.5 * z)) < 1.5 * lh;
+  const inView = (y) => y - 0.85 * lh > vy0 && y + 0.15 * lh < vy1;
+  let nameSide = nameRight;
+  const placeKey = `${m.id}|${innerWidth}x${innerHeight}`, startY = nameY;
+  // Reuse this card's spot from an earlier screen, unless the rink was drawn at another scale and it now clashes.
+  let placed = namePlace.get(placeKey);
+  if (placed && onRing(startY + placed.off * lh, placed.side)) placed = null;
+  if (placed) { nameSide = placed.side; nameY = startY + placed.off * lh; }
+  else if (onRing(nameY, nameSide)) {
+    const tries = [];
+    for (const right of [nameRight, !nameRight]) for (let i = 0; i <= 8; i++) for (const d of i ? [i, -i] : [0]) tries.push([nameY + d * 0.25 * lh, right]);
+    const hit = tries.find(([y, right]) => inView(y) && !nearGoalieLabel(y, right) && !onRing(y, right));
+    if (hit) [nameY, nameSide] = hit;
+  }
+  if (!placed) namePlace.set(placeKey, { side: nameSide, off: (nameY - startY) / lh });
   nameY = Math.min(nameY, vy1 - 0.15 * lh); // never below the bottom of the rink view
-  parts.push(`<text class="label" x="${shx + (nameRight ? 1.7 : -1.7) * z}" text-anchor="${nameRight ? "start" : "end"}" y="${nameY}">${label(m.primary_player)}</text>`);
+  parts.push(`<text class="label" x="${shx + (nameSide ? 1.7 : -1.7) * z}" text-anchor="${nameSide ? "start" : "end"}" y="${nameY}">${label(m.primary_player)}</text>`);
 
   const alt = `Rink seen from above, attacking the goal at the top. ${m.players.length} skaters shown. ${label(m.primary_player)} is ringed and shoots; the goalie is the square.`;
   return `<svg class="rink" style="--u:${u}" viewBox="${vx0} ${vy0} ${vx1 - vx0} ${vy1 - vy0}" role="img" aria-label="${alt}">${parts.join("")}</svg>`;
