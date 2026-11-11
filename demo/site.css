@@ -227,6 +227,18 @@ button.call:not(.call-big):focus-visible { outline-color: var(--navy); }
   .modal-card .answers + *, .modal-card button.primary + .source { margin-top: 12px; }
 }
 
+/* Short desktop screens: the pop-up scrolls, so the action button stays pinned at the bottom of it (same as phones). */
+@media (min-width: 761px) and (max-height: 700px) {
+  /* Panel buttons only: over the clip the button isn't in the scrolling card, so pinning does nothing there. */
+  .modal-card .panel button.primary { width: 100%; position: sticky; bottom: 0; z-index: 2; }
+  /* Backdrop in the panel's colour out to its edges, so scrolled text doesn't show around or under the pinned button. */
+  .modal-card .panel button.primary::before { content: ""; position: absolute; inset: -16px; z-index: -1; background: var(--page-2); pointer-events: none; }
+  /* The backdrop paints over the button's own background and border, so the pill is redrawn on top of it. */
+  .modal-card .panel button.primary::after { content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: inherit; background: var(--accent); pointer-events: none; }
+  .modal-card .panel button.primary:hover::after { background: var(--accent-hover); }
+  .modal-card .panel button.primary + .source { margin-top: 16px; }
+}
+
 /* Short phones (e.g. 375x667): compact the stacked rink + key so the newest text clears the sticky button. */
 @media (max-width: 599px) and (max-height: 740px) {
   .modal-card .rink { max-height: 24svh; }
