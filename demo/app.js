@@ -231,6 +231,16 @@ function rinkSvg(m, show = {}, fit = [show]) {
   vy1 = Math.max(vy1, shy + 4.6 * Math.sqrt((vx1 - vx0) / 28) * 0.8 * Math.sqrt(k)); // room for the shooter's name under the dot
   k = shrink(); // the view may have grown taller, so measure the shrink again
   const z = Math.sqrt((vx1 - vx0) / 28) * 0.8 * Math.sqrt(k);
+  // Labels are 1.25 units * --u, which on screen comes to about 1.25 * cardW / (28 * sqrt(k)) px.
+  // That suits a phone (~16 px) but grows to ~28 px in the wide desktop window, louder than the text beside it,
+  // so cap the on-screen label size at 16 px.
+  const labelPx = (1.25 * cardW) / (28 * Math.sqrt(k));
+  // Floor at 11.5 px so a height cap (short phones) can't shrink labels below readable; ceiling 16 px.
+  const u = ((vx1 - vx0) / 28) * Math.sqrt(k) * Math.min(Math.max(labelPx, 11.5), 16) / labelPx;
+  const lh = 1.25 * u; // one label line, in rink units
+  // Where the "Goalie" label goes: on the goalie's far side from the shooter.
+  const gxy = r.goalie ? P(r.goalie.x, r.goalie.y) : null;
+  const goalieLabelRight = gxy ? gxy[0] > shx : false;
 
   parts.push(`<path class="boards" d="M -13 4 V -22 A 8.5 8.5 0 0 1 -4.5 -30.5 H 4.5 A 8.5 8.5 0 0 1 13 -22 V 4"/>`);
   parts.push(`<line class="centre-line" x1="-13" x2="13" y1="0" y2="0"/>`);
@@ -239,6 +249,7 @@ function rinkSvg(m, show = {}, fit = [show]) {
   parts.push(`<path class="crease" d="M -1.8 ${goalY} A 1.8 1.8 0 0 0 1.8 ${goalY} Z"/>`);
   parts.push(`<rect class="net" x="-0.9" y="${goalY - 1.1}" width="1.8" height="1.1"/>`);
 
+  let distBox = null; // the shot-distance label's box, so the defender's gap label can keep clear of it
   const strong = new Set();
   const key = (p) => p.id;
   if (r.goalie) strong.add(key(r.goalie));
@@ -276,7 +287,19 @@ function rinkSvg(m, show = {}, fit = [show]) {
     parts.push(`<line class="guide" x1="${shx}" y1="${shy}" x2="0" y2="${goalY}"/>`);
     // From very close the sentence already says the distance, and the label would sit on the goalie.
     // Whole metres, matching the "about N m" sentences.
-    if (d.distance_to_goal_line_m > 5) parts.push(`<text class="label" x="${shx + 1.2 * z}" y="${(shy + goalY) / 2}">${Math.round(d.distance_to_goal_line_m)} m</text>`);
+    // Right of the line; a short shot can put that on the goalie or the "Goalie" label, and then it goes left of the line.
+    const txt = `${Math.round(d.distance_to_goal_line_m)} m`;
+    const my = (shy + goalY) / 2, tw = 0.64 * lh * txt.length, gh = 0.75 * z;
+    const x0 = shx + 1.2 * z; // left edge of the label when it sits right of the line
+    const gRight = gxy ? (goalieLabelRight ? gxy[0] + 1.4 * z + 0.64 * lh * 6 : gxy[0] + gh) : 0; // goalie square + "Goalie" label, right edge
+    const gLeft = gxy ? (goalieLabelRight ? gxy[0] - gh : gxy[0] - 1.4 * z - 0.64 * lh * 6) : 0;
+    const clash = gxy && x0 < gRight && x0 + tw > gLeft && Math.abs(my - 0.35 * lh - gxy[1]) < 0.5 * lh + gh;
+    if (d.distance_to_goal_line_m > 5) distBox = clash
+      ? { l: shx / 2 - 1.2 * z - tw, r: shx / 2 - 1.2 * z, t: my - 0.85 * lh, b: my + 0.15 * lh }
+      : { l: x0, r: x0 + tw, t: my - 0.85 * lh, b: my + 0.15 * lh };
+    if (d.distance_to_goal_line_m > 5) parts.push(clash
+      ? `<text class="label" text-anchor="end" x="${shx / 2 - 1.2 * z}" y="${my}">${txt}</text>`
+      : `<text class="label" x="${x0}" y="${my}">${txt}</text>`);
   }
 
   // Defenders are marked with a ring only; their names would pile onto the goalie and shooter.
@@ -317,7 +340,18 @@ function rinkSvg(m, show = {}, fit = [show]) {
     // Label goes past the defender, away from the shooter (below a defender behind him, above one in front),
     // so it never sits on the shooter's ring or name and can't be read as another player's distance.
     const below = ny > shy;
-    parts.push(`<text class="label" text-anchor="middle" x="${nx}" y="${ny + (below ? 2.2 : -1.6) * z}">${r.near[0].m.toFixed(1)} m</text>`);
+    const txt = `${r.near[0].m.toFixed(1)} m`;
+    const ly = ny + (below ? 2.2 : -1.6) * z;
+    // Above a defender in front of the shooter can land on the goalie; then it goes beside the defender, away from the goalie.
+    const hw = 0.32 * lh * txt.length, gh = 0.75 * z;
+    const onGoalie = !below && gxy && Math.abs(nx - gxy[0]) < hw + gh && Math.abs(ly - 0.35 * lh - gxy[1]) < 0.5 * lh + gh;
+    // It can also land on the shot-distance label; then it goes beside the defender, away from the shot line.
+    const onDist = distBox && nx + hw > distBox.l && nx - hw < distBox.r && ly - 0.85 * lh < distBox.b && ly + 0.15 * lh > distBox.t;
+    if (onGoalie || onDist) {
+      const t = (ny - shy) / (goalY - shy || 1), lineX = shx * (1 - t);
+      const side = onDist ? (nx >= lineX ? 1 : -1) : (gxy[0] > nx ? -1 : 1);
+      parts.push(`<text class="label" text-anchor="${side < 0 ? "end" : "start"}" x="${nx + side * 1.6 * z}" y="${ny + 0.35 * lh}">${txt}</text>`);
+    } else parts.push(`<text class="label" text-anchor="middle" x="${nx}" y="${ly}">${txt}</text>`);
   }
 
   parts.push(`<circle class="${m.primary_team === "Home" ? "skater home" : "skater away"}" cx="${shx}" cy="${shy}" r="${0.75 * z}"/>`);
@@ -325,15 +359,15 @@ function rinkSvg(m, show = {}, fit = [show]) {
   // The puck is not in the data. At a shot event it is on the shooter's stick, so it is drawn at the shooter, nudged away from the goal so it does not sit on the goalie.
   const len = Math.hypot(shx, shy - goalY) || 1;
   parts.push(`<circle class="puck" cx="${shx + (shx / len) * 1.2 * z}" cy="${shy + ((shy - goalY) / len) * 1.2 * z}" r="${0.35 * z}"/>`);
-  parts.push(`<text class="label" x="${shx + (nameRight ? 1.7 : -1.7) * z}" text-anchor="${nameRight ? "start" : "end"}" y="${shy + 0.5 * z}">${label(m.primary_player)}</text>`);
+  // A shooter right beside the goalie can get his name on the same side as "Goalie"; keep a clear line between them.
+  let nameY = shy + 0.5 * z;
+  if (gxy && nameRight === goalieLabelRight) {
+    const gLabelY = gxy[1] + 0.5 * z;
+    if (Math.abs(nameY - gLabelY) < 1.5 * lh) nameY = gLabelY + 1.5 * lh;
+  }
+  parts.push(`<text class="label" x="${shx + (nameRight ? 1.7 : -1.7) * z}" text-anchor="${nameRight ? "start" : "end"}" y="${nameY}">${label(m.primary_player)}</text>`);
 
   const alt = `Rink seen from above, attacking the goal at the top. ${m.players.length} skaters shown. ${label(m.primary_player)} is ringed and shoots; the goalie is the square.`;
-  // Labels are 1.25 units * --u, which on screen comes to about 1.25 * cardW / (28 * sqrt(k)) px.
-  // That suits a phone (~16 px) but grows to ~28 px in the wide desktop window, louder than the text beside it,
-  // so cap the on-screen label size at 16 px.
-  const labelPx = (1.25 * cardW) / (28 * Math.sqrt(k));
-  // Floor at 11.5 px so a height cap (short phones) can't shrink labels below readable; ceiling 16 px.
-  const u = ((vx1 - vx0) / 28) * Math.sqrt(k) * Math.min(Math.max(labelPx, 11.5), 16) / labelPx;
   return `<svg class="rink" style="--u:${u}" viewBox="${vx0} ${vy0} ${vx1 - vx0} ${vy1 - vy0}" role="img" aria-label="${alt}">${parts.join("")}</svg>`;
 }
 
