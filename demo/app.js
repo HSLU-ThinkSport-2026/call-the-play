@@ -382,6 +382,22 @@ function rinkSvg(m, show = {}, fit = [show]) {
     const gLabelY = gxy[1] + 0.5 * z;
     if (Math.abs(nameY - gLabelY) < 1.5 * lh) nameY = gLabelY + 1.5 * lh;
   }
+  // A defender ringed in any of the card's reasons can stand where the name goes; move the name down until it
+  // clears every such ring (decided from all the card's cues, so it doesn't jump between reasons).
+  const ringed = new Map();
+  fit.forEach((f) => {
+    if (f.near) r.near.filter((n, i) => (f.near === 1 ? i < 1 : n.m <= f.near)).forEach((n) => ringed.set(n.p.id, n.p));
+    if (f.screening) r.screening.forEach((q) => ringed.set(q.id, q));
+  });
+  const nameW = 0.64 * lh * label(m.primary_player).length, nameX = shx + (nameRight ? 1.7 : -1.7) * z;
+  const nameL = nameRight ? nameX : nameX - nameW, nameR = nameRight ? nameX + nameW : nameX;
+  const onRing = (y) => [...ringed.values()].some((q) => {
+    const [qx, qy] = P(q.x, q.y), rr = 1.2 * z; // ring radius
+    const cx = Math.min(Math.max(qx, nameL), nameR), cy = Math.min(Math.max(qy, y - 0.85 * lh), y + 0.15 * lh);
+    return Math.hypot(qx - cx, qy - cy) < rr; // ring circle meets the name's box
+  });
+  for (let i = 0; i < 6 && onRing(nameY); i++) nameY += 0.25 * lh;
+  nameY = Math.min(nameY, vy1 - 0.15 * lh); // never below the bottom of the rink view
   parts.push(`<text class="label" x="${shx + (nameRight ? 1.7 : -1.7) * z}" text-anchor="${nameRight ? "start" : "end"}" y="${nameY}">${label(m.primary_player)}</text>`);
 
   const alt = `Rink seen from above, attacking the goal at the top. ${m.players.length} skaters shown. ${label(m.primary_player)} is ringed and shoots; the goalie is the square.`;
