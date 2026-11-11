@@ -348,16 +348,27 @@ function rinkSvg(m, show = {}, fit = [show]) {
     const below = ny > shy;
     const txt = `${r.near[0].m.toFixed(1)} m`;
     const ly = ny + (below ? 2.2 : -1.6) * z;
-    // Above a defender in front of the shooter can land on the goalie; then it goes beside the defender, away from the goalie.
-    const hw = 0.32 * lh * txt.length, gh = 0.75 * z;
-    const onGoalie = !below && gxy && Math.abs(nx - gxy[0]) < hw + gh && Math.abs(ly - 0.35 * lh - gxy[1]) < 0.5 * lh + gh;
-    // It can also land on the shot-distance label; then it goes beside the defender, away from the shot line.
-    const onDist = distBox && nx + hw > distBox.l && nx - hw < distBox.r && ly - 0.85 * lh < distBox.b && ly + 0.15 * lh > distBox.t;
-    if (onGoalie || onDist) {
-      const t = (ny - shy) / (goalY - shy || 1), lineX = shx * (1 - t);
-      const side = onDist ? (nx >= lineX ? 1 : -1) : (gxy[0] > nx ? -1 : 1);
-      parts.push(`<text class="label" text-anchor="${side < 0 ? "end" : "start"}" x="${nx + side * 1.6 * z}" y="${ny + 0.35 * lh}">${txt}</text>`);
-    } else parts.push(`<text class="label" text-anchor="middle" x="${nx}" y="${ly}">${txt}</text>`);
+    // Try that spot first, then beside the defender (side away from what it hit first, then the other side), then
+    // the opposite vertical spot; take the first one clear of the goalie square, the "Goalie" text, the shot-distance
+    // label and the shooter's ring.
+    const tw = 0.64 * lh * txt.length, gh = 0.75 * z;
+    const boxAt = (anchor, x, y) => ({ l: anchor === "start" ? x : anchor === "end" ? x - tw : x - tw / 2, r: anchor === "start" ? x + tw : anchor === "end" ? x : x + tw / 2, t: y - 0.85 * lh, b: y + 0.15 * lh });
+    const hit = (a, b) => a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
+    const obstacles = [{ l: shx - 1.2 * z, r: shx + 1.2 * z, t: shy - 1.2 * z, b: shy + 1.2 * z }];
+    if (gxy) {
+      obstacles.push({ l: gxy[0] - gh, r: gxy[0] + gh, t: gxy[1] - gh, b: gxy[1] + gh });
+      const gw = 0.64 * lh * 6, gy = gxy[1] + 0.5 * z; // the "Goalie" label
+      obstacles.push(goalieLabelRight ? { l: gxy[0] + 1.4 * z, r: gxy[0] + 1.4 * z + gw, t: gy - 0.85 * lh, b: gy + 0.15 * lh }
+        : { l: gxy[0] - 1.4 * z - gw, r: gxy[0] - 1.4 * z, t: gy - 0.85 * lh, b: gy + 0.15 * lh });
+    }
+    if (distBox) obstacles.push(distBox);
+    const first = boxAt("middle", nx, ly);
+    const blocker = obstacles.find((o) => hit(first, o));
+    const away = blocker && (blocker.l + blocker.r) / 2 > nx ? -1 : 1;
+    const beside = (side) => ({ anchor: side < 0 ? "end" : "start", x: nx + side * 1.6 * z, y: ny + 0.35 * lh });
+    const spots = [{ anchor: "middle", x: nx, y: ly }, beside(away), beside(-away), { anchor: "middle", x: nx, y: ny + (below ? -1.6 : 2.2) * z }];
+    const spot = spots.find((c) => !obstacles.some((o) => hit(boxAt(c.anchor, c.x, c.y), o))) || spots[0];
+    parts.push(`<text class="label" text-anchor="${spot.anchor}" x="${spot.x}" y="${spot.y}">${txt}</text>`);
   }
 
   parts.push(`<circle class="${m.primary_team === "Home" ? "skater home" : "skater away"}" cx="${shx}" cy="${shy}" r="${0.75 * z}"/>`);
