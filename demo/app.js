@@ -515,7 +515,7 @@ function render() {
       ${scaleBar(m.xg)}
       <p class="sentence">${outcome(m)}</p>
       <button class="primary" data-act="why">Show me why</button>
-      <p class="source">Where the number comes from: WiseHockey's tracking data rates every shot on its distance and angle to the net, players blocking the goalie's view, the passes just before it and where the goalie stands.</p>`;
+      <p class="source">WiseHockey's tracking data rates every shot on its distance and angle to the net, players blocking the goalie's view, the passes just before it and where the goalie stands.</p>`;
   } else {
     const last = state.cue >= cues.length - 1;
     const reasons = cues.slice(0, state.cue + 1).map((c, i) => `<li class="${i === state.cue ? "now" : ""}">${c.text}</li>`).join("");
