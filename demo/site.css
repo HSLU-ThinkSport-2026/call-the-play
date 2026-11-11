@@ -135,6 +135,7 @@ button.call:not(.call-big):focus-visible { outline-color: var(--navy); }
   align-items: center; gap: 12px; margin: -16px -16px 12px; padding: 12px 16px;
   background: linear-gradient(90deg, var(--teal-dark) 0%, #1A4C74 45%, var(--navy) 100%);
   border-radius: 10px 10px 0 0;
+  position: sticky; top: -16px; z-index: 3; /* stays put when the card scrolls, so the close button is always reachable */
 }
 .modal-card .top .progress { color: #fff; }
 .modal-card .top h1 { flex: 1; }
