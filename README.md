@@ -6,14 +6,14 @@ A prototype for the [SIC Data Hack Challenge 2026](https://innovation-thinksport
 
 ## The idea
 
-Most visitors open the match page, check the score and leave. "Call the play" puts one question about a real moment of the match right under the score: *Goal deserved or lucky? Was that a real chance?* One tap, then the answer as a plain number ("a shot like this goes in about 1 time in 5"), then, if you want, the reasons one at a time on a 2D rink: how far out, who was close, who blocked the goalie's view. After six moments you see how many you called.
+Most visitors open the match page, check the score and leave. "Call the play" puts one question about a real moment of the match right under the score: *Goal deserved or lucky? Was that a real chance?* One tap, then the answer as a plain number ("1 in 5 shots like this go in"), then, if you want, the reasons one at a time on a 2D rink: how far out, who was close, who blocked the goalie's view and, on goals, who set it up. After six moments you see where each shot came from and how many of your calls matched the data.
 
 Every card uses one scale from the tracking data's shot rating (expected goals): a shot rated 1 in 10 or better is a real chance, anything below is a long shot.
 
 ## What works and what is in development
 
-- **Works:** the six cards end to end on a mock-up of the tournament match page (ticker, "Call the play" buttons, question, answer, rink reveal, end recap), on phone and desktop, keyboard use and screen-reader labels.
-- **In development:** picking the moments automatically, a daily streak, crowd results, live data during the match, other languages.
+- **Works:** the six cards end to end on a mock-up of the tournament match page (ticker, "Call the play" buttons, question, answer, rink reveal, end screen with a shot map per moment and a share button), on phone and desktop, keyboard use and screen-reader labels. The six moments are picked automatically by rules over every shot of the match (`scripts/extract_moments.py`).
+- **In development:** a daily streak, crowd results, live data during the match, other languages.
 
 ## Data
 
