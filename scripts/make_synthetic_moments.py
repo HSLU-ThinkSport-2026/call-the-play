@@ -16,7 +16,7 @@ import random
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from extract_moments import GOAL_LINE_X, derive  # noqa: E402
+from extract_moments import GOAL_LINE_X, PICK_RULES, derive  # noqa: E402
 
 rng = random.Random(2026)
 
@@ -108,13 +108,14 @@ penalty = dict(id="p1_penalty", period=2, match_clock_s=455.0, timestamp_ms=1798
                event="Penalty", strength="", primary_player=nm("Away", "Ostrow"), primary_team="Away", shot_result="",
                xg=None, shot_speed=None, penalty_reason="Hooking", stoppage_reason="")
 moments.append(penalty)
+for m in moments:
+    m["picked"] = PICK_RULES[m["id"]]  # same rule line as the real cards; the invented match is built to fit it
 
 goals = [
     (1, 872, "Away", nm("Away", "Rask"), "FullStrength"),
     (1, 1090, "Home", nm("Home", "Brenner"), "FullStrength"),
     (2, 491, "Home", nm("Home", "Solberg"), "HomePowerplay"),
     (2, 742, "Away", nm("Away", "Brandvold"), "FullStrength"),
-    (3, 408, "Away", nm("Away", "Varga"), "FullStrength"),
     (3, 1013, "Home", nm("Home", "Vandrell"), "FullStrength"),
     (3, 1137, "Home", nm("Home", "Lindqvist"), "FullStrength"),
 ]

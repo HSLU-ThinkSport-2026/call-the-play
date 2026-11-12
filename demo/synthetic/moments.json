@@ -33,13 +33,6 @@
    },
    {
     "period": 3,
-    "clock_s": 408.0,
-    "team": "Away",
-    "player": "#22 Nikolai Varga",
-    "strength": "FullStrength"
-   },
-   {
-    "period": 3,
     "clock_s": 1013.0,
     "team": "Home",
     "player": "#21 Dario Vandrell",
@@ -78,7 +71,7 @@
   ],
   "final": {
    "Home": 4,
-   "Away": 3
+   "Away": 2
   },
   "team_names": {
    "Home": {
@@ -231,7 +224,8 @@
     "nearest_defender": "#12 Tobias Reinholt",
     "nearest_defender_m": 4.3,
     "screening_ids": []
-   }
+   },
+   "picked": "the goal with the biggest chance"
   },
   {
    "id": "c2_save",
@@ -372,7 +366,8 @@
     "nearest_defender": "#9 Lars Ostrow",
     "nearest_defender_m": 2.6,
     "screening_ids": []
-   }
+   },
+   "picked": "the biggest chance the goalie saved"
   },
   {
    "id": "c3_deserved",
@@ -513,7 +508,8 @@
     "nearest_defender": "#9 Lars Ostrow",
     "nearest_defender_m": 4.2,
     "screening_ids": []
-   }
+   },
+   "picked": "the go-ahead goal that was the closest call"
   },
   {
    "id": "c4_lucky",
@@ -657,7 +653,8 @@
      "910008",
      "920022"
     ]
-   }
+   },
+   "picked": "the goal with the smallest chance"
   },
   {
    "id": "c5_miss",
@@ -798,7 +795,8 @@
     "nearest_defender": "#23 Viktor Lindqvist",
     "nearest_defender_m": 5.4,
     "screening_ids": []
-   }
+   },
+   "picked": "the biggest chance that missed the net"
   },
   {
    "id": "c6_powerplay",
@@ -930,7 +928,8 @@
     "nearest_defender": "#5 Cormac Teague",
     "nearest_defender_m": 3.0,
     "screening_ids": []
-   }
+   },
+   "picked": "the goal that came quickest after a penalty"
   },
   {
    "id": "p1_penalty",
@@ -945,7 +944,8 @@
    "xg": null,
    "shot_speed": null,
    "penalty_reason": "Hooking",
-   "stoppage_reason": ""
+   "stoppage_reason": "",
+   "picked": "the penalty before that goal"
   }
  ]
 }

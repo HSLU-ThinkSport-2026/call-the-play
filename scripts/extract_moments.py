@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Extract the card moments from the full WiseHockey match event file.
+"""Pick the card moments from the full WiseHockey match event file, then extract them.
 
-The event CSV is confidential and must stay outside this repo. Point the script
-at it with --csv or THINKSPORT_EVENTS_CSV. The moments to extract come from
-scripts/moments_config.local.json (gitignored). Output goes to data/moments.json, also gitignored.
+The moments are chosen by rules over every shot in the match (see PICK_RULES), not by hand, so the same
+script picks the cards for any game. The event CSV is confidential and must stay outside this repo. Point
+the script at it with --csv or THINKSPORT_EVENTS_CSV. scripts/moments_config.local.json (gitignored) gives
+the team names and an optional cross-check of the picks. Output goes to data/moments.json, also gitignored.
 
     python3 scripts/extract_moments.py --csv "/path/to/Match_Events.csv"
 
@@ -93,6 +94,76 @@ def find(rows, m):
     return hits
 
 
+# ---------- picking the moments ----------
+# A shot rated 1 in 10 or better counts as a real chance (the demo's scale). Rules run in this order and
+# skip shots already picked, so each card gets a different moment. PICK_RULES says what each rule looks for
+# in words; the card shows that line to the visitor after the call.
+REAL_CHANCE = 0.1
+PENALTY_WINDOW_S = 120  # a minor penalty: the power play lasts up to two minutes
+PICK_RULES = {
+    "c4_lucky": "the goal with the smallest chance",
+    "c1_good_spot": "the goal with the biggest chance",
+    "c2_save": "the biggest chance the goalie saved",
+    "c5_miss": "the biggest chance that missed the net",
+    "c6_powerplay": "the goal that came quickest after a penalty",
+    "c3_deserved": "the go-ahead goal that was the closest call",
+    "p1_penalty": "the penalty before that goal",
+}
+# "Closest call" = rated nearest the 1-in-10 line (REAL_CHANCE), measured as a ratio (log scale), not a difference.
+
+
+def _t(r):
+    return (int(r["Period"]), num(r["MatchClock"]) or 0.0)
+
+
+def pick(rows):
+    """Return {card id: (event row, how many events its rule chose from)}, plus the penalty behind the power-play goal."""
+    timed = [r for r in rows if num(r["MatchClock"]) is not None]  # an event without a clock can't be placed in the game
+    shots = [r for r in timed if r["EventType"] == "Shot" and num(r["ShotXG"]) is not None]
+    goals = [r for r in shots if r["ShotResult"] == "Goal"]
+    penalties = [r for r in timed if r["EventType"] == "Penalty"]
+    # Score before each goal, from every goal in the file (goals without an xG still count toward the score).
+    score, ahead = {"Home": 0, "Away": 0}, set()
+    for r in sorted((r for r in timed if r["EventType"] == "Shot" and r["ShotResult"] == "Goal"), key=_t):
+        team = r["EventPrimaryTeam"]
+        other = "Away" if team == "Home" else "Home"
+        if score[team] == score[other]:
+            ahead.add(id(r))  # this goal put the team ahead
+        score[team] += 1
+
+    def after_penalty(r):
+        """Seconds since the latest penalty on the other team, if the goal came on the power play within the window."""
+        if "Powerplay" not in r["TeamStrengthType"]:
+            return None
+        gaps = [_t(r)[1] - _t(p)[1] for p in penalties
+                if p["Period"] == r["Period"] and p["EventPrimaryTeam"] != r["EventPrimaryTeam"] and 0 <= _t(r)[1] - _t(p)[1] <= PENALTY_WINDOW_S]
+        return min(gaps) if gaps else None
+
+    xg = lambda r: num(r["ShotXG"])
+    rules = [
+        ("c4_lucky", goals, lambda r: xg(r)),
+        ("c1_good_spot", goals, lambda r: -xg(r)),
+        ("c2_save", [r for r in shots if r["ShotResult"] == "Saved"], lambda r: -xg(r)),
+        ("c5_miss", [r for r in shots if r["ShotResult"] == "Missed"], lambda r: -xg(r)),
+        ("c6_powerplay", [r for r in goals if after_penalty(r) is not None], after_penalty),
+        ("c3_deserved", [r for r in goals if id(r) in ahead], lambda r: abs(math.log(max(xg(r), 1e-6) / REAL_CHANCE))),
+    ]
+    picked, used = {}, set()
+    for card, pool, key in rules:
+        free = [r for r in pool if id(r) not in used]
+        if not free:
+            continue
+        r = min(free, key=lambda r: (key(r), _t(r)))
+        used.add(id(r))
+        picked[card] = (r, len(pool))
+    if "c6_powerplay" in picked:
+        g = picked["c6_powerplay"][0]
+        pen = max((p for p in penalties if p["Period"] == g["Period"] and p["EventPrimaryTeam"] != g["EventPrimaryTeam"]
+                   and 0 <= _t(g)[1] - _t(p)[1] <= PENALTY_WINDOW_S), key=_t)
+        picked["p1_penalty"] = (pen, 1)
+    return picked
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", default=os.environ.get("THINKSPORT_EVENTS_CSV"))
@@ -110,20 +181,22 @@ def main():
         rows = list(csv.DictReader(f))
 
     result, problems = [], []
+    picked = pick(rows)
     for m in MOMENTS:
-        hits = find(rows, m)
-        if len(hits) != 1:
-            problems.append(f"{m['id']}: expected 1 matching event, found {len(hits)}")
-            if not hits:
-                continue
-        r = hits[0]
+        if m["id"] not in picked:
+            sys.exit(f"{m['id']}: no moment in this match matches its rule ({PICK_RULES[m['id']]}); the demo needs all six cards.")
+        r, among = picked[m["id"]]
+        # Cross-check: the config names the moment we expect each rule to find.
+        if r not in find(rows, m):
+            problems.append(f"{m['id']}: the rule picked P{r['Period']} t={r['MatchClock']}, not the configured moment")
         players = snapshot(r)
         entry = dict(id=m["id"], period=m["period"], match_clock_s=num(r["MatchClock"]), timestamp_ms=num(r["Timestamp"]),
                      event=r["EventType"], strength=r["TeamStrengthType"],
                      primary_player=r["EventPrimaryPlayerName"], primary_team=r["EventPrimaryTeam"],
                      shot_result=r["ShotResult"], xg=num(r["ShotXG"]), shot_speed=num(r["ShotSpeed"]),
                      penalty_reason=r["PenaltyReason"], stoppage_reason=r["StoppageOfPlayReason"],
-                     players=players)
+                     players=players, picked=PICK_RULES[m["id"]])
+        print(f"  {m['id']}: picked as {PICK_RULES[m['id']]} (from {among})")
         if m["event"] == "Shot":
             entry["derived"] = derive(r, players)
         exp = m["expect"]

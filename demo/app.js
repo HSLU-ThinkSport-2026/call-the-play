@@ -540,6 +540,7 @@ function render() {
     app.innerHTML = `<section class="panel"><p class="question">You called ${hit} of ${done.length}.</p>
       <ol class="recap-list">${rows}</ol>
       <p class="sentence takeaway">Rule of thumb: a shot rated 1 in 10 or better is a real chance. Even real chances mostly don't go in.</p>
+      <button class="ghost" data-act="share">Share your score</button>
       <button class="primary" data-act="close">Back to the match</button></section>`;
     announceAndFocus();
     return;
@@ -582,6 +583,7 @@ function render() {
       ${scaleBar(m.xg)}
       <p class="sentence">${outcome(m)}</p>
       <button class="primary" data-act="why">Show me why</button>
+      ${m.picked ? `<p class="source picked"><strong>Picked automatically:</strong> ${m.picked} in this game.</p>` : ""}
       <p class="source">WiseHockey's tracking data rates every shot on its distance and angle to the net, players blocking the goalie's view, the passes just before it and where the goalie stands.</p>`;
   } else {
     const last = state.cue >= cues.length - 1;
@@ -656,6 +658,7 @@ modal.addEventListener("click", (e) => {
   if (!b) return;
   const act = b.dataset.act;
   if (act === "close") return closeModal();
+  if (act === "share") return shareScore(b);
   if (act === "answer") {
     if (Date.now() - askShownAt < 400) return;
     // Replay the rest of the clip, unless it already ended. With no Skip button, a replay that can't play
@@ -675,6 +678,22 @@ modal.addEventListener("click", (e) => {
   else if (act === "next") return lastOfRun(state.card) ? (state = { ...state, stage: "done" }, render()) : startCard(nextCard(state.card));
   render();
 });
+
+// The end screen's score, sent through the phone's share sheet, or copied where there is none (most desktops).
+// The link keeps only the data choice, so a friend lands on the same match.
+async function shareScore(button) {
+  const done = results.filter(Boolean);
+  const text = `I called ${done.filter((r) => r.right).length} of ${done.length} on Call the play. Can you beat that?`;
+  const data = new URLSearchParams(location.search).get("data");
+  const url = location.origin + location.pathname + (data ? `?data=${encodeURIComponent(data)}` : "");
+  const say = (msg) => { button.textContent = msg; live.textContent = msg; };
+  if (navigator.share) {
+    try { await navigator.share({ text, url }); } catch (e) { /* closed the share sheet: nothing to do */ }
+    return;
+  }
+  try { await navigator.clipboard.writeText(`${text} ${url}`); say("Copied. Paste it in a chat."); }
+  catch (e) { say("Couldn't copy. Use the link in the address bar."); }
+}
 
 let opener = null;
 const background = () => [...document.body.children].filter((el) => el !== modal && !el.matches("script, #live"));
@@ -769,7 +788,7 @@ async function loadData() {
   return res.json();
 }
 
-const DEMO_NOTE = "<strong>Fictional match, synthetic data.</strong> Works: the six cards end to end. In development: auto-picked moments, daily streak, crowd results, live data, other languages.";
+const DEMO_NOTE = "<strong>Fictional match, synthetic data.</strong> Works: the six cards end to end. In development: daily streak, crowd results, live data, other languages.";
 
 // Team names, crests, title and breadcrumb come from the data when it names the teams; index.html keeps the defaults.
 function applyChrome() {
