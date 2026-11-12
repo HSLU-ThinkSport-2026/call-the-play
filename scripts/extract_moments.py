@@ -80,6 +80,37 @@ def derive(row, players):
     return out
 
 
+ASSIST_LOOKBACK_S = 15
+
+
+def assist(rows, i):
+    """Who set up the goal shot at rows[i]: the first assist on the goal row, and that player's last touch before the shot
+    (a pass, a carry or a faceoff win), with where it started and ended. None if the goal has no assist or no such touch."""
+    shot = rows[i]
+    goal = next((r for r in rows[i + 1:i + 12] if r["EventType"] == "Goal" and r["Period"] == shot["Period"]
+                 and r["EventPrimaryPlayerId"] == shot["EventPrimaryPlayerId"]), None)
+    pid = goal and goal["GoalAssist1Id"]
+    if not pid:
+        return None
+    t = num(shot["MatchClock"])
+    kinds = {"Pass": "pass", "PuckControl": "carry", "Faceoff": "faceoff"}
+    for r in reversed(rows[max(0, i - 60):i]):
+        rt = num(r["MatchClock"])
+        if r["Period"] != shot["Period"]:
+            break
+        if rt is None or rt > t:  # no clock, or out of time order: skip the row
+            continue
+        if t - rt > ASSIST_LOOKBACK_S:
+            break
+        if r["EventPrimaryPlayerId"] != pid or r["EventType"] not in kinds:
+            continue
+        a, b = to_xy(r["EventStartCoordinate"]), to_xy(r["EventEndCoordinate"])
+        return dict(id=pid, kind=kinds[r["EventType"]], seconds_before=round(t - rt),
+                    start=list(a) if a else None, end=list(b) if b else None,
+                    metres=round(math.hypot(b[0] - a[0], b[1] - a[1]), 1) if a and b else None)
+    return None
+
+
 def find(rows, m):
     hits = []
     for r in rows:
@@ -199,6 +230,8 @@ def main():
         print(f"  {m['id']}: picked as {PICK_RULES[m['id']]} (from {among})")
         if m["event"] == "Shot":
             entry["derived"] = derive(r, players)
+            if r["ShotResult"] == "Goal":
+                entry["assist"] = assist(rows, rows.index(r))
         exp = m["expect"]
         d = entry.get("derived", {})
         if "xg" in exp and entry["xg"] != exp["xg"]:

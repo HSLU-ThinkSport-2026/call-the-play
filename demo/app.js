@@ -79,7 +79,21 @@ function roles(m) {
     .map((p) => ({ p, m: dist(p, shot) }))
     .sort((a, b) => a.m - b.m);
   const screening = m.players.filter((p) => d.screening_ids.includes(p.id));
-  return { shooter, goalie, defenders, shot, near, screening };
+  const mate = m.assist ? m.players.find((p) => p.id === m.assist.id) || null : null; // who set up the goal
+  return { shooter, goalie, defenders, shot, near, screening, mate };
+}
+
+// "Who set it up", the last reason on every goal card: the goal's first assist and his last touch before the shot
+// (a pass, a carry or a faceoff win). Built from the data, so a goal without an assist simply has no such reason.
+function assistCue(m) {
+  const a = m.assist, mate = a && roles(m).mate;
+  if (!mate) return [];
+  const when = a.seconds_before <= 1 ? "a second" : `${word(a.seconds_before)} seconds`;
+  const who = label(mate.name), shooter = last(m.primary_player);
+  const text = a.kind === "pass" ? `${who} set it up with a pass to ${shooter}, ${when} before the shot.`
+    : a.kind === "carry" ? `${who} set it up: he carried the puck ${a.metres ? `${Math.round(a.metres)} m ` : ""}up the ice and left it for ${shooter}, ${when} before the shot.`
+    : `${who} set it up by winning the faceoff, ${when} before the shot.`;
+  return [{ text, show: { shotLine: true, assist: true } }];
 }
 
 // The correct answer comes from the one scale, not from a per-card number: real chance if xG >= REAL_CHANCE.
@@ -218,6 +232,10 @@ function rinkSvg(m, show = {}, fit = [show]) {
   fit.forEach((f) => {
     if (f.near) r.near.filter((n, i) => (f.near === 1 ? i < 1 : n.m <= f.near)).forEach((n) => focusPts.push(P(n.p.x, n.p.y)));
     if (f.screening) r.screening.forEach((p) => focusPts.push(P(p.x, p.y)));
+    if (f.assist && r.mate) {
+      focusPts.push(P(r.mate.x, r.mate.y));
+      if (m.assist.kind === "pass" && m.assist.start) focusPts.push(P(...m.assist.start)); // a pass fits whole; a carry from far out is cut at the edge
+    }
   });
   const fx = focusPts.map((q) => q[0]);
   const fy = focusPts.map((q) => q[1]);
@@ -267,13 +285,14 @@ function rinkSvg(m, show = {}, fit = [show]) {
     r.near.filter((n, i) => (limit ? i < limit : n.m <= show.near)).forEach((n) => strong.add(key(n.p)));
   }
   if (show.screening) r.screening.forEach((p) => strong.add(key(p)));
+  if (show.assist && r.mate) strong.add(key(r.mate));
 
   // A defender closer than the dot sizes allow would be drawn under the shooter's ring.
   // For the single-defender cue, push its dot just outside the ring, in its real direction from the shooter.
   // The distance label still states the measured gap.
+  // The same goes for the player who set up the goal: he often stands right beside the shooter.
   const nudged = new Map();
-  if (show.near === 1 && r.near[0]) {
-    const p = r.near[0].p;
+  const nudge = (p) => {
     const [x, y] = P(p.x, p.y);
     const minSep = 2.6 * z;
     const dist = Math.hypot(x - shx, y - shy);
@@ -281,7 +300,9 @@ function rinkSvg(m, show = {}, fit = [show]) {
       const [ux, uy] = dist > 0.01 ? [(x - shx) / dist, (y - shy) / dist] : [-1, 0];
       nudged.set(p.id, [shx + ux * minSep, shy + uy * minSep]);
     }
-  }
+  };
+  if (show.near === 1 && r.near[0]) nudge(r.near[0].p);
+  if (show.assist && r.mate) nudge(r.mate);
   const pos = (p) => nudged.get(p.id) || P(p.x, p.y);
 
   // others first (faint), then highlighted, then the shooter on top
@@ -291,6 +312,15 @@ function rinkSvg(m, show = {}, fit = [show]) {
     const [x, y] = P(p.x, p.y);
     parts.push(`<circle class="${cls(p, "faint")}" cx="${x}" cy="${y}" r="${0.6 * z}"/>`);
   });
+
+  // The set-up pass or carry: a dashed line with an arrowhead, from where it started to where the shooter got the puck.
+  const a = m.assist;
+  if (show.assist && a && a.start && a.end) {
+    const [x1, y1] = P(...a.start), [x2, y2] = P(...a.end);
+    const dl = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / dl, uy = (y2 - y1) / dl, h = 0.7 * z;
+    parts.push(`<line class="guide assist" x1="${x1}" y1="${y1}" x2="${x2 - ux * h}" y2="${y2 - uy * h}"/>`);
+    parts.push(`<path class="assist-head" d="M ${x2} ${y2} L ${x2 - ux * h - uy * h * 0.6} ${y2 - uy * h + ux * h * 0.6} L ${x2 - ux * h + uy * h * 0.6} ${y2 - uy * h - ux * h * 0.6} Z"/>`);
+  }
 
   if (show.shotLine) {
     parts.push(`<line class="guide" x1="${shx}" y1="${shy}" x2="0" y2="${goalY}"/>`);
@@ -320,6 +350,23 @@ function rinkSvg(m, show = {}, fit = [show]) {
       parts.push(`<rect class="${cls(p, "goalie")}" x="${x - h}" y="${y - h}" width="${2 * h}" height="${2 * h}" rx="${0.2 * z}"/>`);
       const out = x > shx; // label on the goalie's far side from the shooter, clear of the shooter's defender and name
       parts.push(`<text class="label" text-anchor="${out ? "start" : "end"}" x="${x + (out ? 1.4 : -1.4) * z}" y="${y + 0.5 * z}">Goalie</text>`);
+      return;
+    }
+    if (r.mate && p.id === r.mate.id) { // the player who set it up: solid ring in the shooter's colour, number on his far side from the shooter
+      const side = x < shx ? -1 : 1;
+      parts.push(`<circle class="${cls(p)}" cx="${x}" cy="${y}" r="${0.7 * z}"/>`);
+      parts.push(`<circle class="ring ring-mate" cx="${x}" cy="${y}" r="${1.2 * z}"/>`);
+      // First spot clear of every other dot and the shooter's ring: beside him away from the shooter, the other side, above, below.
+      const txt = number(p.name) || last(p.name), tw = 0.64 * lh * txt.length;
+      const spots = [[side, x + side * 1.6 * z, y + 0.35 * lh], [-side, x - side * 1.6 * z, y + 0.35 * lh], [0, x, y - 1.6 * z], [0, x, y + 1.6 * z + 0.7 * lh]];
+      // The shooter is drawn at the shot's own coordinate, not his snapshot position, so test against that spot.
+      const dots = m.players.filter((q) => q.id !== p.id && q !== r.shooter).map((q) => [...pos(q), r.goalie && q.id === r.goalie.id ? 1.06 * z : 0.7 * z]).concat([[shx, shy, 1.2 * z]]);
+      const clear = ([sd, tx, ty]) => {
+        const l = sd < 0 ? tx - tw : sd > 0 ? tx : tx - tw / 2, rr = l + tw, t = ty - 0.85 * lh, b = ty + 0.15 * lh;
+        return !dots.some(([qx, qy, rad]) => Math.hypot(qx - Math.min(Math.max(qx, l), rr), qy - Math.min(Math.max(qy, t), b)) < rad);
+      };
+      const [sd, tx, ty] = spots.find(clear) || spots[0];
+      parts.push(`<text class="label" text-anchor="${sd < 0 ? "end" : sd > 0 ? "start" : "middle"}" x="${tx}" y="${ty}">${txt}</text>`);
       return;
     }
     parts.push(`<circle class="${cls(p)}" cx="${x}" cy="${y}" r="${0.7 * z}"/>`);
@@ -391,21 +438,24 @@ function rinkSvg(m, show = {}, fit = [show]) {
   fit.forEach((f) => {
     if (f.near) r.near.filter((n, i) => (f.near === 1 ? i < 1 : n.m <= f.near)).forEach((n) => ringed.set(n.p.id, n.p));
     if (f.screening) r.screening.forEach((q) => ringed.set(q.id, q));
+    if (f.assist && r.mate) ringed.set(r.mate.id, r.mate);
   });
   const nameW = 0.64 * lh * label(m.primary_player).length;
   // Every other skater's dot counts too (faint or not), so the name never sits on a player.
   const circles = m.players.filter((q) => q !== r.shooter && !(r.goalie && q.id === r.goalie.id))
     .map((q) => [...P(q.x, q.y), ringed.has(q.id) ? 1.2 * z : 0.7 * z]); // ring radius, or dot radius
   if (gxy) circles.push([gxy[0], gxy[1], 1.06 * z]); // the goalie's square, by its half-diagonal
-  // The single-defender cue draws that defender pushed just outside the shooter's ring; count that spot too
+  // The single-defender and set-up cues draw that player pushed just outside the shooter's ring; count that spot too
   // whenever any of the card's cues shows it, so the name stays put across reasons.
-  if (fit.some((f) => f.near === 1) && r.near[0]) {
-    const [x, y] = P(r.near[0].p.x, r.near[0].p.y), dist = Math.hypot(x - shx, y - shy), minSep = 2.6 * z;
+  const pushedSpot = (p) => {
+    const [x, y] = P(p.x, p.y), dist = Math.hypot(x - shx, y - shy), minSep = 2.6 * z;
     if (dist < minSep) {
       const [ux, uy] = dist > 0.01 ? [(x - shx) / dist, (y - shy) / dist] : [-1, 0];
       circles.push([shx + ux * minSep, shy + uy * minSep, 1.2 * z]);
     }
-  }
+  };
+  if (fit.some((f) => f.near === 1) && r.near[0]) pushedSpot(r.near[0].p);
+  if (fit.some((f) => f.assist) && r.mate) pushedSpot(r.mate);
   const onRing = (y, right) => {
     const x = shx + (right ? 1.7 : -1.7) * z, l = right ? x : x - nameW, rgt = right ? x + nameW : x;
     return circles.some(([qx, qy, rr]) => {
@@ -417,17 +467,23 @@ function rinkSvg(m, show = {}, fit = [show]) {
   // chosen side, then on the other; it must keep the gap under "Goalie" (same side) and stay inside the rink view.
   // None clear: the starting spot.
   const nearGoalieLabel = (y, right) => gxy && right === goalieLabelRight && Math.abs(y - (gxy[1] + 0.5 * z)) < 1.5 * lh;
-  const inView = (y) => y - 0.85 * lh > vy0 && y + 0.15 * lh < vy1;
+  // The drawing is letterboxed: when the height cap shrinks it (k > 1), the visible width is k times the view's width.
+  // The name estimate runs about 15% wide, so the sideways test uses 0.9 of it.
+  const cx = (vx0 + vx1) / 2, half = ((vx1 - vx0) * k) / 2;
+  const inView = (y, right) => {
+    const x = shx + (right ? 1.7 : -1.7) * z, w = 0.9 * nameW, l = right ? x : x - w;
+    return y - 0.85 * lh > vy0 && y + 0.15 * lh < vy1 && l > cx - half && l + w < cx + half;
+  };
   let nameSide = nameRight;
   const placeKey = `${m.id}|${innerWidth}x${innerHeight}`, startY = nameY;
   // Reuse this card's spot from an earlier screen, unless the rink was drawn at another scale and it now clashes.
   let placed = namePlace.get(placeKey);
-  if (placed && onRing(startY + placed.off * lh, placed.side)) placed = null;
+  if (placed && (onRing(startY + placed.off * lh, placed.side) || !inView(startY + placed.off * lh, placed.side))) placed = null;
   if (placed) { nameSide = placed.side; nameY = startY + placed.off * lh; }
-  else if (onRing(nameY, nameSide)) {
+  else if (onRing(nameY, nameSide) || !inView(nameY, nameSide)) {
     const tries = [];
     for (const right of [nameRight, !nameRight]) for (let i = 0; i <= 8; i++) for (const d of i ? [i, -i] : [0]) tries.push([nameY + d * 0.25 * lh, right]);
-    const hit = tries.find(([y, right]) => inView(y) && !nearGoalieLabel(y, right) && !onRing(y, right));
+    const hit = tries.find(([y, right]) => inView(y, right) && !nearGoalieLabel(y, right) && !onRing(y, right));
     if (hit) [nameY, nameSide] = hit;
   }
   if (!placed) namePlace.set(placeKey, { side: nameSide, off: (nameY - startY) / lh });
@@ -546,7 +602,7 @@ function render() {
     return;
   }
   const m = byId(card.id);
-  const cues = card.cues(m);
+  const cues = [...card.cues(m), ...assistCue(m)];
   const clip = !!video.getAttribute("src");
   const onVideo = clip && ["video", "ask", "replay", "answer"].includes(state.stage);
   videoWrap.hidden = !onVideo;
@@ -614,13 +670,15 @@ function render() {
   revealNewest();
 }
 
-// On a phone the primary button is sticky at the bottom; after a step, make sure the newest content isn't hidden under it.
+// On a phone (and a short desktop screen) the primary button is pinned at the bottom; after a step, make sure the newest content isn't hidden under it.
 function revealNewest() {
   const widget = document.getElementById("widget");
   if (!widget || modal.hidden) return;
   if (state.stage === "video" || state.stage === "replay") return; // a clip is playing: don't jump the scroll
   widget.scrollTop = 0;
-  if ((widget.classList.contains("wide") && matchMedia("(min-width: 761px)").matches) || (state.stage !== "answer" && state.stage !== "cue")) return;
+  // The wide desktop window only needs this on a short screen, where it scrolls under the pinned button.
+  const wideFits = widget.classList.contains("wide") && matchMedia("(min-width: 761px)").matches && widget.scrollHeight <= widget.clientHeight + 1;
+  if (wideFits || (state.stage !== "answer" && state.stage !== "cue")) return;
   const target = state.stage === "answer" ? widget.querySelector(".mark")
     : widget.querySelector(".conclusion") || widget.querySelector(".reasons li.now");
   if (!target) return;

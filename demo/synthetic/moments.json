@@ -225,6 +225,20 @@
     "nearest_defender_m": 4.3,
     "screening_ids": []
    },
+   "assist": {
+    "id": "920019",
+    "kind": "pass",
+    "seconds_before": 1,
+    "start": [
+     -19.0,
+     7.0
+    ],
+    "end": [
+     -20.6,
+     -1.6
+    ],
+    "metres": 8.7
+   },
    "picked": "the goal with the biggest chance"
   },
   {
@@ -509,6 +523,20 @@
     "nearest_defender_m": 4.2,
     "screening_ids": []
    },
+   "assist": {
+    "id": "910012",
+    "kind": "carry",
+    "seconds_before": 4,
+    "start": [
+     2.0,
+     3.0
+    ],
+    "end": [
+     13.0,
+     3.6
+    ],
+    "metres": 11.0
+   },
    "picked": "the go-ahead goal that was the closest call"
   },
   {
@@ -653,6 +681,20 @@
      "910008",
      "920022"
     ]
+   },
+   "assist": {
+    "id": "920005",
+    "kind": "pass",
+    "seconds_before": 2,
+    "start": [
+     -10.2,
+     -9.2
+    ],
+    "end": [
+     -6.2,
+     -3.9
+    ],
+    "metres": 6.6
    },
    "picked": "the goal with the smallest chance"
   },
@@ -928,6 +970,14 @@
     "nearest_defender": "#5 Cormac Teague",
     "nearest_defender_m": 3.0,
     "screening_ids": []
+   },
+   "assist": {
+    "id": "910012",
+    "kind": "faceoff",
+    "seconds_before": 3,
+    "start": null,
+    "end": null,
+    "metres": null
    },
    "picked": "the goal that came quickest after a penalty"
   },

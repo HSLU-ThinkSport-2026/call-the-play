@@ -11,6 +11,7 @@ Positions are written in the shooting team's attack frame (u along the attack, v
 coordinates: Home attacks toward +x, Away toward -x. Standard library only.
 """
 import json
+import math
 import os
 import random
 import sys
@@ -103,6 +104,21 @@ moments = [
         "Away": {"G": (25.1, -0.7), "Teague": (19.2, -0.5), "Brandvold": (21.8, 6.0), "Varga": (15.0, -9.5),
                  "Hartwell": (12.5, 4.8)}}),
 ]
+
+def set_up(m, key, kind, seconds, start=None, end=None):
+    """Invented assist in the same shape extract_moments.assist() writes; start/end in the shooting team's attack frame."""
+    team = m["primary_team"]
+    sg = SIGN[team]
+    xy = lambda uv: [round(sg * uv[0], 1), round(sg * uv[1], 1)] if uv else None
+    m["assist"] = dict(id=ROSTER[team][key][1], kind=kind, seconds_before=seconds, start=xy(start), end=xy(end),
+                       metres=round(math.hypot(end[0] - start[0], end[1] - start[1]), 1) if start and end else None)
+
+
+byid = {m["id"]: m for m in moments}
+set_up(byid["c1_good_spot"], "Rask", "pass", 1, (19.0, -7.0), (20.6, 1.6))
+set_up(byid["c3_deserved"], "Reinholt", "carry", 4, (2.0, 3.0), (13.0, 3.6))
+set_up(byid["c4_lucky"], "Teague", "pass", 2, (10.2, 9.2), (6.2, 3.9))
+set_up(byid["c6_powerplay"], "Reinholt", "faceoff", 3)
 
 penalty = dict(id="p1_penalty", period=2, match_clock_s=455.0, timestamp_ms=1798000000000.0 + 2 * 1.5e6 + 455000.0,
                event="Penalty", strength="", primary_player=nm("Away", "Ostrow"), primary_team="Away", shot_result="",

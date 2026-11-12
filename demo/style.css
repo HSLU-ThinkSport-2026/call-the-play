@@ -53,6 +53,8 @@ h1 { font-size: 17px; line-height: 24px; margin: 0; letter-spacing: .02em; }
 .rink .goalie.away { stroke: var(--away-edge); }
 .rink .ring { fill: none; stroke: var(--accent); }
 .rink .ring-def { stroke: var(--ink-dim); stroke-dasharray: 3px 2px; }
+.rink .ring-mate { stroke: var(--accent); }
+.rink .assist-head { fill: var(--accent); }
 .rink .guide { stroke: var(--accent); stroke-dasharray: 5px 4px; fill: none; }
 .rink .puck { fill: var(--puck); stroke: var(--ice); stroke-width: .15; }
 /* --u shrinks the SVG units back down when the view is zoomed, so label size on screen stays constant */
@@ -61,7 +63,7 @@ h1 { font-size: 17px; line-height: 24px; margin: 0; letter-spacing: .02em; }
 .rink .boards, .rink .goal-line, .rink .centre-line, .rink .blue-line, .rink .crease, .rink .net, .rink .skater, .rink .ring, .rink .ring-def, .rink .guide { vector-effect: non-scaling-stroke; }
 .rink .boards { stroke-width: 2px; } .rink .goal-line { stroke-width: 2px; } .rink .centre-line { stroke-width: 2px; }
 .rink .blue-line { stroke-width: 3px; } .rink .crease { stroke-width: 1.5px; } .rink .net { stroke-width: 2.5px; }
-.rink .skater { stroke-width: 1.5px; } .rink .ring { stroke-width: 3px; } .rink .ring-def { stroke-width: 1.5px; } .rink .guide { stroke-width: 2px; }
+.rink .skater { stroke-width: 1.5px; } .rink .ring { stroke-width: 3px; } .rink .ring-def, .rink .ring-mate { stroke-width: 1.5px; } .rink .guide { stroke-width: 2px; }
 .rink .faint { opacity: .45; }
 
 .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
