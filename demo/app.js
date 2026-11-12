@@ -9,6 +9,9 @@ const NEAR_M = 2.5; // defenders within this distance of the shot count as "on h
 
 const app = document.getElementById("app");
 const progress = document.getElementById("progress");
+const setProgress = (n) => { // n = 0: nothing to show yet
+  progress.innerHTML = n ? `<span class="ticks" aria-hidden="true">${CARDS.map((c, i) => `<i class="${i + 1 < n ? "done" : i + 1 === n ? "now" : ""}"></i>`).join("")}</span><span class="sr-only">Moment ${n} of ${CARDS.length}</span>` : "";
+};
 let data = null;
 let state = { card: 0, stage: "ask", answer: null, cue: 0 };
 let askShownAt = 0; // a second click on "Skip" must not land on the answer that appears under it
@@ -57,9 +60,26 @@ function chanceSentence(xg) {
 // Where this shot sits on the one scale. Linear 0 to 5 in 10; the 1-in-10 line is at 20 %.
 function scaleBar(xg) {
   const pos = Math.min(xg, 0.5) / 0.5 * 100;
+  const ticks = [1, 2, 3, 4, 5].map((n) => `<i class="tick" style="left:${n * 20}%"></i><span class="tick-label" style="left:${n * 20}%">${n} in 10</span>`).join("");
   return `<div class="scale" role="img" aria-label="Rated ${chanceSentence(xg).replace("about ", "")}. Under 1 in 10 is a long shot; 1 in 10 or better is a real chance.">
-    <div class="scale-track"><span class="seg long">Long shot</span><span class="seg real">Real chance</span><i class="pin" style="left:${pos}%"></i></div>
-    <p class="scale-cap">Rated 1 in 10 or better = a real chance</p></div>`;
+    <div class="scale-axis"><i class="zone long"></i><i class="zone real"></i>${ticks}<i class="shot" style="left:${pos}%"></i></div>
+    <p class="scale-legend"><span><b>Long shot</b> under 1 in 10</span><span><b>Real chance</b> 1 in 10 or better</span></p></div>`;
+}
+
+// A small shot map for the end screen: the attacking zone, the net at the top, where the shot came from.
+function shotMap(m) {
+  const s = m.derived.attack_sign;
+  const x = s * m.derived.shot_xy[1], y = Math.min(-s * m.derived.shot_xy[0], -8); // a shot from beyond the blue line sits on it
+  const gl = -data.goal_line_x_assumed;
+  const goal = (m.shot_result || "").toLowerCase() === "goal";
+  return `<svg viewBox="-15.5 -30.5 31 23.5" aria-hidden="true">
+    <path class="m-rink" d="M-15 -7.5V-22Q-15 -30 -7 -30H7Q15 -30 15 -22V-7.5"/>
+    <line class="m-goal" x1="-14.2" x2="14.2" y1="${gl}" y2="${gl}"/>
+    <line class="m-goal" x1="-15" x2="15" y1="-7.5" y2="-7.5" style="stroke: var(--blue-line)"/>
+    <rect class="m-net" x="-0.9" y="${gl - 1.1}" width="1.8" height="1.1"/>
+    <line class="m-path" x1="${x}" y1="${y}" x2="0" y2="${gl}"/>
+    <circle class="m-shot${goal ? " goal" : ""}" cx="${x}" cy="${y}" r="1.1"/>
+  </svg>`;
 }
 
 function outcome(m) {
@@ -100,6 +120,8 @@ function assistCue(m) {
 const rightOf = (card) => (byId(card.id).xg >= REAL_CHANCE ? card.real : 1 - card.real);
 
 // The verdict's "{rated}" is filled from the moment's own xG, so every data set states its own number.
+// The data's answer as a short label ("Lucky", "Easy to stop").
+const verdictWord = (card) => card.options[rightOf(card)] + (card.optionSuffix || "");
 const verdictOf = (card) => card.verdict.replace("{rated}", chance(byId(card.id).xg));
 
 // ---------- the six cards ----------
@@ -139,7 +161,7 @@ const CARDS = [
   },
   {
     id: "c3_deserved",
-    why: "Deserved or lucky?",
+    why: "What made it a real chance",
     pauseAt: 10, // "deserved or lucky" is about a goal, so it pauses once the puck is in
     question: "Goal deserved or lucky?",
     options: ["Deserved", "Lucky"],
@@ -158,7 +180,7 @@ const CARDS = [
   },
   {
     id: "c4_lucky",
-    why: "Deserved or lucky?",
+    why: "Why it still went in",
     pauseAt: 10, // "deserved or lucky" is about a goal, so it pauses once the puck is in
     question: "Goal deserved or lucky?",
     options: ["Deserved", "Lucky"],
@@ -196,6 +218,7 @@ const CARDS = [
     pauseAt: 9.5, // "how easy was that to stop?" is about the goal, so it pauses once the puck is in
     question: "How easy was that to stop?",
     options: ["Hard", "Easy"], // "Easy to stop" = it was a long shot
+    optionSuffix: " to stop",
     cues: (m) => {
       const r = roles(m);
       const pen = byId("p1_penalty");
@@ -574,29 +597,36 @@ video.addEventListener("error", () => {
 
 function render() {
   const card = CARDS[state.card];
-  progress.textContent = state.stage === "done" ? "" : `Moment ${runPos(state.card)} of ${CARDS.length}`;
+  setProgress(state.stage === "done" ? 0 : runPos(state.card));
   const widget = document.getElementById("widget");
   widget.dataset.stage = state.stage;
   if (state.stage === "done") {
     videoWrap.hidden = true;
     widget.scrollTop = 0;
     widget.classList.remove("wide");
+    widget.classList.add("end-wide"); // desktop: the six shot maps in one row
     app.classList.remove("why-layout");
     document.getElementById("context").innerHTML = "";
-    const rows = CARDS.map((c, i) => {
+    // In match order, as on the ticker; each shot with its rating, the data's answer and the visitor's call.
+    const tiles = CARDS.map((c, i) => {
       const r = results[i];
       if (!r) return "";
       const m = byId(c.id);
-      return `<li><span class="rc-mark ${r.right ? "yes" : "no"}" aria-hidden="true">${r.right ? "✓" : "✗"}</span>
-        <span class="rc-body"><strong>${label(m.primary_player)}</strong> · rated ${chance(m.xg)}<br>
-        You said ${c.options[r.answer]}${r.right ? "" : `. Data says ${c.options[rightOf(c)]}`}<span class="sr-only">${r.right ? ", correct" : ", not matching the data"}</span></span></li>`;
+      return `<li>${shotMap(m)}<span class="who-line">${label(m.primary_player)}</span> · ${PERIOD[m.period].replace(" period", "")} ${clock(m.match_clock_s)}
+        <span class="sr-only">, rated </span><span class="rated">${chance(m.xg)}</span><span class="sr-only">: </span>${verdictWord(c)}. <span class="call ${r.right ? "yes" : "no"}">${r.right ? "Your call too." : `You said ${c.options[r.answer]}.`}</span></li>`;
     }).join("");
     const done = results.filter(Boolean);
     const hit = done.filter((r) => r.right).length;
-    app.innerHTML = `<section class="panel"><p class="question">You called ${hit} of ${done.length}.</p>
-      <ol class="recap-list">${rows}</ol>
-      <p class="sentence takeaway">Rule of thumb: a shot rated 1 in 10 or better is a real chance. Even real chances mostly don't go in.</p>
-      <button class="ghost" data-act="share">Share your score</button>
+    const seen = CARDS.filter((c, i) => results[i]).map((c) => byId(c.id)).filter((m) => m.event !== "Penalty");
+    const longs = seen.filter((m) => m.xg < REAL_CHANCE);
+    const longGoals = longs.filter((m) => (m.shot_result || "").toLowerCase() === "goal").length;
+    const lesson = !longs.length ? `Every shot here was a real chance.`
+      : longs.length === 1 ? `One of these was a long shot${longGoals ? ", and it still went in." : "."}`
+      : `${cap(word(longs.length))} of these were long shots${longGoals ? `, and ${longGoals === longs.length ? (longs.length === 2 ? "both" : "all of them") : word(longGoals)} still went in.` : "."}`;
+    app.innerHTML = `<section class="panel"><h2 class="end-title">${lesson}</h2>
+      <p class="end-sub">Your calls matched the data on ${word(hit)} of ${word(done.length)}. Rule of thumb: 1 in 10 or better is a real chance, and even real chances mostly don't go in.</p>
+      <ol class="shots">${tiles}</ol>
+      <button class="ghost" data-act="share">Share</button>
       <button class="primary" data-act="close">Back to the match</button></section>`;
     announceAndFocus();
     return;
@@ -608,14 +638,14 @@ function render() {
   videoWrap.hidden = !onVideo;
   // Same wide window from the clip through the reasons, so "Show me why" doesn't jump to a different size.
   // Without a clip the rink stands in for it at every step: rink left, text right, so the pop-up fits a laptop screen.
+  widget.classList.remove("end-wide");
   const twoCol = !onVideo && ["ask", "answer", "cue"].includes(state.stage);
   widget.classList.toggle("wide", onVideo || twoCol);
   app.classList.toggle("why-layout", twoCol); // set before the rink is drawn: its size depends on this layout
   videoWrap.classList.toggle("asking", state.stage === "ask");
   if (state.stage === "ask") askShownAt = Date.now();
-  const recap = state.answer === null ? "" : `<p class="recap">${card.question} <strong>You said ${card.options[state.answer]}.</strong></p>`;
   const sc = scoreBefore(m.period, m.match_clock_s);
-  const context = `${PERIOD[m.period]} · ${clock(m.match_clock_s)} · ${short("Home")} ${sc.Home}–${sc.Away} ${short("Away")}`;
+  const context = `<span>${PERIOD[m.period]} · ${clock(m.match_clock_s)}</span><span class="score-chip">${short("Home")} ${sc.Home}–${sc.Away} ${short("Away")}</span>`;
   // Text alternative for the clip; hidden from assistive tech when there is no clip (synthetic data).
   if (clip) { video.setAttribute("aria-label", `Clip of the moment: ${label(m.primary_player)}, ${teamName(m.primary_team)}, ${PERIOD[m.period]} ${clock(m.match_clock_s)}; the question appears when it pauses`); video.removeAttribute("aria-hidden"); }
   else { video.removeAttribute("aria-label"); video.setAttribute("aria-hidden", "true"); }
@@ -634,17 +664,22 @@ function render() {
   } else if (state.stage === "replay") {
     body = `<p class="recap one-line">${card.question} <strong>You said ${card.options[state.answer]}.</strong> <span class="watching">Here's what happened…</span></p>`;
   } else if (state.stage === "answer") {
-    body = `${recap}<p class="headline">A shot like this goes in ${chanceSentence(m.xg)}.</p>
-      <p class="mark ${results[state.card].right ? "yes" : "no"}">${results[state.card].right ? "✓ You called it." : `✗ Not this time. The data says ${card.options[rightOf(card)]}.`}</p>
+    const res = results[state.card];
+    const call = `<span class="verdict-call ${res.right ? "yes" : "no"}">${res.right ? "Your call too" : "Not your call"}</span>`;
+    const reveal = `<div class="reveal">
+        <p class="figure">${chance(m.xg)}</p>
+        <p class="figure-cap">shots like this go in. ${outcome(m)}</p>
+        <p class="verdict"><span class="verdict-word">${verdictWord(card)}</span>${call}</p>
+      </div>`;
+    body = `<p class="you-said">You said <strong>${card.options[state.answer]}</strong>.</p>${reveal}
       ${scaleBar(m.xg)}
-      <p class="sentence">${outcome(m)}</p>
       <button class="primary" data-act="why">Show me why</button>
       ${m.picked ? `<p class="source picked"><strong>Picked automatically:</strong> ${m.picked} in this game.</p>` : ""}
       <p class="source">WiseHockey's tracking data rates every shot on its distance and angle to the net, players blocking the goalie's view, the passes just before it and where the goalie stands.</p>`;
   } else {
     const last = state.cue >= cues.length - 1;
     const reasons = cues.slice(0, state.cue + 1).map((c, i) => `<li class="${i === state.cue ? "now" : ""}">${c.text}</li>`).join("");
-    body = `${recap}<h2 class="why-title">${card.why}</h2>
+    body = `<h2 class="why-title">${card.why}</h2>
       <ol class="reasons">${reasons}</ol>
       ${last ? `<p class="conclusion"><strong>So:</strong> ${verdictOf(card)}</p>` : ""}
       <button class="primary" data-act="${last ? "next" : "cue"}">${last ? (lastOfRun(state.card) ? "See how you did" : "Next moment") : "Next reason"}</button>`;
@@ -655,9 +690,7 @@ function render() {
     const key = `<ul class="key-list" aria-label="Key">
       <li>${sym('<circle r="4.5" class="k-home"/>')}${teamName("Home")}</li>
       <li>${sym('<circle r="4.5" class="k-away"/>')}${teamName("Away")}</li>
-      <li>${sym('<circle r="3" class="k-ink"/><circle r="5.2" class="k-ring"/>')}The shooter</li>
-      ${roles(m).goalie ? `<li>${sym(`<rect x="-4" y="-4" width="8" height="8" rx="1" class="${roles(m).goalie.team === "Home" ? "k-home" : "k-away"}"/>`)}The goalie</li>` : ""}
-      <li>${sym('<circle r="2" class="k-puck"/>')}The puck</li>
+      <li>${sym('<circle r="3" class="k-ink"/><circle r="5.2" class="k-ring"/>')}Shooter</li>
     </ul>`;
     rink = `<div class="why-rink">${rinkSvg(m, show, cues.map((c) => c.show))}${key}</div>`;
   }
@@ -679,7 +712,7 @@ function revealNewest() {
   // The wide desktop window only needs this on a short screen, where it scrolls under the pinned button.
   const wideFits = widget.classList.contains("wide") && matchMedia("(min-width: 761px)").matches && widget.scrollHeight <= widget.clientHeight + 1;
   if (wideFits || (state.stage !== "answer" && state.stage !== "cue")) return;
-  const target = state.stage === "answer" ? widget.querySelector(".mark")
+  const target = state.stage === "answer" ? widget.querySelector(".verdict")
     : widget.querySelector(".conclusion") || widget.querySelector(".reasons li.now");
   if (!target) return;
   const btn = widget.querySelector("button.primary");
@@ -696,10 +729,10 @@ const plain = (html) => { const d = document.createElement("div"); d.innerHTML =
 function announceAndFocus(card, m, cues) {
   if (modal.hidden) return; // a late clip error can re-render a closed pop-up; say nothing then
   let say = "";
-  if (state.stage === "done") say = `You called ${results.filter((r) => r && r.right).length} of ${results.filter(Boolean).length}.`;
+  if (state.stage === "done") say = `${modal.querySelector(".end-title")?.textContent ?? ""} Your calls matched the data on ${results.filter((r) => r && r.right).length} of ${results.filter(Boolean).length}.`;
   else if (state.stage === "ask") say = `Shot by ${label(m.primary_player)}, ${teamName(m.primary_team)}. ${card.question}`;
   else if (state.stage === "replay") say = "Here's what happened.";
-  else if (state.stage === "answer") say = `A shot like this goes in ${chanceSentence(m.xg)}. ${results[state.card].right ? "You called it." : `Not this time. The data says ${card.options[rightOf(card)]}.`}`;
+  else if (state.stage === "answer") say = `${cap(chance(m.xg))} shots like this go in. ${outcome(m)} ${verdictWord(card)}. ${results[state.card].right ? "Your call too." : "Not your call."}`;
   else if (state.stage === "cue") {
     const c = cues[Math.min(state.cue, cues.length - 1)];
     say = `${state.cue === 0 ? card.why + ". " : ""}${plain(c.text)}${state.cue >= cues.length - 1 ? ` So: ${verdictOf(card)}` : ""}`;
@@ -741,7 +774,7 @@ modal.addEventListener("click", (e) => {
 // The link keeps only the data choice, so a friend lands on the same match.
 async function shareScore(button) {
   const done = results.filter(Boolean);
-  const text = `I called ${done.filter((r) => r.right).length} of ${done.length} on Call the play. Can you beat that?`;
+  const text = `I called ${done.filter((r) => r.right).length} of ${done.length} moments from the match on Call the play. Try it:`;
   const data = new URLSearchParams(location.search).get("data");
   const url = location.origin + location.pathname + (data ? `?data=${encodeURIComponent(data)}` : "");
   const say = (msg) => { button.textContent = msg; live.textContent = msg; };
@@ -758,7 +791,8 @@ const background = () => [...document.body.children].filter((el) => el !== modal
 function openModal(i) {
   results = []; // each session recaps only its own calls
   runStart = i;
-  progress.textContent = ""; // don't show the last run's "Moment N of 6" while the first clip check runs
+  document.getElementById("widget").classList.remove("end-wide");
+  setProgress(0); // don't show the last run's "Moment N of 6" while the first clip check runs
   opener = document.activeElement;
   background().forEach((el) => el.inert = true);
   modal.hidden = false;

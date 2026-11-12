@@ -2,7 +2,6 @@
 :root {
   /* Spengler Cup site palette (site.css): navy #07234A, teal #4BB2CF */
   --page: #07234A;
-  --page-2: #0E3164;
   --ink: #F4F8FB;
   --ink-dim: #B4C6DA;
   --ice: #EAF6FA;
@@ -15,6 +14,8 @@
   --accent: #4BB2CF;
   --accent-ink: #07234A;
   --accent-hover: #6CC4DB;
+  --accent-on-ice: #1F6E86; /* the accent for marks drawn on the ice: 5.3:1 (the site teal is 2.2:1 there) */
+  --ring-def: #5A7894; /* defenders' dashed ring on the ice: 4.2:1 */
   --ink-light: #07234A; /* text and marks on light surfaces: ice, scale bar, end-screen marks */
   --puck: #111;
   --yes: #7FE0A8;
@@ -34,7 +35,8 @@ body {
 h1 { font-size: 17px; line-height: 24px; margin: 0; letter-spacing: .02em; }
 .progress { margin: 0; color: var(--ink-dim); font-size: 13px; line-height: 18px; }
 
-.panel { background: var(--page-2); border-radius: var(--radius); padding: 16px; margin-top: 12px; }
+/* text sits straight on the navy: no box inside the window */
+.panel { margin-top: 16px; }
 .question { font-size: 24px; line-height: 28px; font-weight: 700; margin: 0 0 16px; }
 .sentence { margin: 0 0 16px; }
 
@@ -51,11 +53,11 @@ h1 { font-size: 17px; line-height: 24px; margin: 0; letter-spacing: .02em; }
 .rink .away { fill: var(--away); stroke: var(--away-edge); }
 .rink .goalie { stroke: var(--ink-dim); }
 .rink .goalie.away { stroke: var(--away-edge); }
-.rink .ring { fill: none; stroke: var(--accent); }
-.rink .ring-def { stroke: var(--ink-dim); stroke-dasharray: 3px 2px; }
-.rink .ring-mate { stroke: var(--accent); }
-.rink .assist-head { fill: var(--accent); }
-.rink .guide { stroke: var(--accent); stroke-dasharray: 5px 4px; fill: none; }
+.rink .ring { fill: none; stroke: var(--accent-on-ice); }
+.rink .ring-def { stroke: var(--ring-def); stroke-dasharray: 3px 2px; }
+.rink .ring-mate { stroke: var(--accent-on-ice); }
+.rink .assist-head { fill: var(--accent-on-ice); }
+.rink .guide { stroke: var(--accent-on-ice); stroke-dasharray: 5px 4px; fill: none; }
 .rink .puck { fill: var(--puck); stroke: var(--ice); stroke-width: .15; }
 /* --u shrinks the SVG units back down when the view is zoomed, so label size on screen stays constant */
 .rink .label { font: 700 calc(1.25px * var(--u, 1)) ui-sans-serif, system-ui, sans-serif; fill: var(--ink-light); paint-order: stroke; stroke: var(--ice); stroke-width: calc(.35px * var(--u, 1)); }
@@ -64,7 +66,8 @@ h1 { font-size: 17px; line-height: 24px; margin: 0; letter-spacing: .02em; }
 .rink .boards { stroke-width: 2px; } .rink .goal-line { stroke-width: 2px; } .rink .centre-line { stroke-width: 2px; }
 .rink .blue-line { stroke-width: 3px; } .rink .crease { stroke-width: 1.5px; } .rink .net { stroke-width: 2.5px; }
 .rink .skater { stroke-width: 1.5px; } .rink .ring { stroke-width: 3px; } .rink .ring-def, .rink .ring-mate { stroke-width: 1.5px; } .rink .guide { stroke-width: 2px; }
-.rink .faint { opacity: .45; }
+/* players not in the reason stay in team colour, just lighter, so both teams read as teams and not as "disabled" */
+.rink .faint { opacity: .7; }
 
 .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 button {
@@ -85,13 +88,15 @@ button:disabled { cursor: default; opacity: .6; }
 
 
 /* ---------- the card inside the modal ---------- */
-.context { margin: 0 0 4px; color: var(--ink-dim); font-size: 13px; line-height: 18px; }
+/* match strip: when, then the score as a chip */
+.context { margin: 0 0 8px; color: var(--ink-dim); font-size: 13px; line-height: 20px; display: flex; align-items: center; gap: 8px; }
+.context:empty { display: none; }
+.score-chip { padding: 0 8px; border-radius: 4px; background: rgba(255,255,255,.1); color: var(--ink); font-weight: 700; letter-spacing: .02em; }
 .modal-card .rink { max-height: 34vh; max-height: 34svh; }
 .watching { color: var(--ink-dim); }
 button.ghost { position: relative; min-height: 40px; border-color: rgba(255,255,255,.3); font-weight: 600; font-size: 15px; }
 
 /* answer screen */
-.headline { font-size: 28px; line-height: 34px; font-weight: 700; margin: 0 0 8px; }
 .source { margin: 12px 0 0; color: var(--ink-dim); font-size: 13px; line-height: 18px; }
 .recap.one-line { margin: 0; }
 .recap .watching { margin-left: 6px; }
@@ -110,13 +115,10 @@ button.ghost { position: relative; min-height: 40px; border-color: rgba(255,255,
 .key-list .k-home { fill: var(--home); stroke: var(--ice); stroke-width: 1.2; }
 .key-list .k-away { fill: var(--away); stroke: var(--away-edge); stroke-width: 1.2; }
 .key-list .k-ink { fill: var(--ink-light); }
-.key-list .k-ring { fill: none; stroke: var(--accent); stroke-width: 1.4; }
+.key-list .k-ring { fill: none; stroke: var(--accent-on-ice); stroke-width: 1.4; }
 .key-list .k-puck { fill: var(--puck); stroke: var(--ice); stroke-width: 1; }
 
 /* right/wrong line on the answer screen, and the conclusion after the last reason. Text and symbol carry the meaning, colour only backs it up. */
-.mark { font-weight: 800; font-size: 18px; line-height: 24px; margin: 0 0 8px; }
-.mark.yes { color: var(--yes); }
-.mark.no { color: var(--no); }
 .conclusion { margin: 0 0 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.2); }
 
 /* names the shooter on the paused frame */
@@ -132,25 +134,57 @@ button.ghost::after { content: ""; position: absolute; inset: -6px 0; }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 #widget:focus { outline: none; }
 
-/* end screen: one row per call, your answer next to the data's */
-.recap-list { list-style: none; margin: 0 0 16px; padding: 0; }
-.recap-list li { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.15); font-size: 15px; line-height: 20px; }
-.recap-list li:first-child { border-top: 0; }
-.rc-mark { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; }
-.rc-mark.yes { background: var(--yes); color: var(--ink-light); }
-.rc-mark.no { background: var(--no); color: var(--ink-light); }
-.rc-body { color: var(--ink-dim); }
-.rc-body strong { color: var(--ink); }
+/* end screen: the six shots as small shot maps, each with its verdict and your call */
+.shots { list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; }
+.shots li { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-dim); }
+.shots svg { display: block; width: 100%; height: auto; border-radius: 6px; background: var(--ice); margin-bottom: 6px; }
+.shots .who-line { color: var(--ink); font-weight: 700; }
+.shots .rated { font-size: 20px; line-height: 24px; font-weight: 800; color: var(--ink); display: block; }
+.shots .call.no { color: var(--no); }
+.shots .call.yes { color: var(--yes); }
+.shots .m-rink { fill: none; stroke: var(--rink-line); stroke-width: .4; }
+.shots .m-goal { stroke: var(--red-line); stroke-width: .35; }
+.shots .m-net { fill: none; stroke: var(--red-line); stroke-width: .35; }
+.shots .m-path { stroke: var(--accent-on-ice); stroke-width: .35; stroke-dasharray: 1 .7; }
+.shots .m-shot { fill: var(--ink-light); }
+.shots .m-shot.goal { fill: var(--accent-on-ice); }
+@media (min-width: 761px) {
+  .shots { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .modal-card.end-wide { max-width: min(1120px, 94vw); }
+  .end-wide .shots { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .end-wide .end-title, .end-wide .end-sub { max-width: 720px; }
+}
+.end-title { font-size: 24px; line-height: 30px; font-weight: 800; margin: 0 0 6px; }
+.end-sub { margin: 0 0 16px; color: var(--ink-dim); }
 
-/* the one scale */
-.scale { margin: 0 0 12px; max-width: 420px; }
-.scale-track { position: relative; display: flex; height: 28px; margin-top: 12px; font-size: 12px; line-height: 28px; font-weight: 700; color: var(--ink-light); }
-.scale-track .seg { text-align: center; white-space: nowrap; }
-.scale-track .long { flex: 20 1 0; background: #B4C6DA; border-radius: 999px 0 0 999px; }
-.scale-track .real { flex: 80 1 0; background: var(--accent); border-radius: 0 999px 999px 0; }
-/* marker: a triangle above the bar, so it never covers the labels */
-.scale-track .pin { position: absolute; top: -11px; width: 0; height: 0; margin-left: -7px; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 10px solid #fff; filter: drop-shadow(0 0 1px var(--ink-light)); }
-.scale-cap { margin: 4px 0 0; font-size: 12px; line-height: 16px; color: var(--ink-dim); }
+/* the one scale: an axis from 0 to 5 in 10, a tick per 1 in 10, the shot as a marker */
+.scale { margin: 0 0 16px; max-width: 420px; padding-right: 20px; }
+.scale-axis { position: relative; height: 34px; margin-top: 8px; }
+.scale-axis .zone { position: absolute; top: 10px; height: 6px; }
+.scale-axis .zone.long { left: 0; width: 20%; background: rgba(180,198,218,.35); border-radius: 3px 0 0 3px; }
+.scale-axis .zone.real { left: 20%; right: 0; background: var(--accent); border-radius: 0 3px 3px 0; }
+.scale-axis .tick { font-style: normal; position: absolute; top: 18px; width: 1px; height: 5px; background: var(--ink-dim); }
+.scale-axis .tick-label { position: absolute; top: 23px; transform: translateX(-50%); font-size: 11px; line-height: 14px; color: var(--ink-dim); white-space: nowrap; }
+.scale-axis .shot { position: absolute; top: 5px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 3px var(--page); }
+.scale-legend { display: flex; justify-content: space-between; margin: 6px 0 0; font-size: 12px; line-height: 16px; color: var(--ink-dim); }
+.scale-legend b { color: var(--ink); font-weight: 700; }
 .watch { margin: 0 0 10px; font-weight: 600; }
 .question:focus { outline: none; }
 .takeaway { color: var(--ink-dim); font-size: 14px; line-height: 20px; }
+
+/* ---------- the reveal ---------- */
+.you-said { margin: 0 0 8px; color: var(--ink-dim); font-size: 15px; line-height: 20px; }
+.you-said strong { color: var(--ink); }
+.reveal { margin: 0 0 8px; }
+.figure { margin: 0; font-size: clamp(56px, 15vw, 88px); line-height: .95; font-weight: 800; letter-spacing: -.035em; font-variant-numeric: lining-nums tabular-nums; }
+.figure-cap { margin: 6px 0 14px; font-size: 17px; line-height: 24px; }
+.verdict { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 16px; }
+.verdict-word { padding: 3px 10px; border-radius: 4px; background: var(--ink); color: var(--ink-light); font-weight: 800; font-size: 15px; line-height: 22px; }
+.verdict-call { font-weight: 700; font-size: 15px; }
+.verdict-call.yes { color: var(--yes); }
+.verdict-call.no { color: var(--no); }
+@media (prefers-reduced-motion: no-preference) {
+  .figure { animation: rise .6s cubic-bezier(.16, 1, .3, 1) both; }
+  .verdict-word { animation: rise .6s .25s cubic-bezier(.16, 1, .3, 1) both; }
+}
+@keyframes rise { from { opacity: .2; transform: translateY(8px); } to { opacity: 1; transform: none; } }

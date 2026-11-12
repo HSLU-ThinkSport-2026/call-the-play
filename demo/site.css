@@ -125,21 +125,25 @@ button.call:not(.call-big):focus-visible { outline-color: var(--navy); }
   background: var(--page); color: var(--ink); border-radius: 10px; padding: 16px;
   font: 16px/24px "Montserrat", ui-sans-serif, system-ui, sans-serif;
 }
-/* Same voice as the site: Montserrat, uppercase heavy titles, teal pills for actions. */
-.modal-card .top h1 { font-weight: 800; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; }
-.modal-card button { border-radius: 999px; font-family: inherit; }
-.modal-card .question, .modal-card .headline, .modal-card .why-title { font-weight: 800; letter-spacing: -.005em; }
+/* Same family as the site, used plainly: sentence-case title, flat navy bar, square-cornered controls. */
+.modal-card .top h1 { font-weight: 700; font-size: 16px; letter-spacing: 0; }
+.modal-card button { font-family: inherit; }
+.modal-card .question, .modal-card .why-title { font-weight: 800; letter-spacing: -.01em; }
 .modal-card .rink .label { font-family: "Montserrat", sans-serif; }
-/* The site's ticker-header strip (teal into navy) as the card's title bar, so the pop-up reads as part of the page. */
+/* Title bar: flat, one hairline under it; sticky so the close button is always reachable. */
 .modal-card .top {
-  align-items: center; gap: 12px; margin: -16px -16px 12px; padding: 12px 16px;
-  background: linear-gradient(90deg, var(--teal-dark) 0%, #1A4C74 45%, var(--navy) 100%);
-  border-radius: 10px 10px 0 0;
-  position: sticky; top: -16px; z-index: 3; /* stays put when the card scrolls, so the close button is always reachable */
+  align-items: center; gap: 16px; margin: -16px -16px 12px; padding: 8px 8px 8px 16px;
+  background: var(--page); border-bottom: 1px solid rgba(255,255,255,.12);
+  position: sticky; top: -16px; z-index: 3;
 }
-.modal-card .top .progress { color: #fff; }
 .modal-card .top h1 { flex: 1; }
-.modal-close { min-height: 44px; width: 44px; padding: 0; border-radius: 50%; border: 1px solid rgba(255,255,255,.3); font-size: 22px; line-height: 1; font-weight: 400; }
+/* progress: one tick per moment, done ticks filled, the current one wider */
+.ticks { display: flex; gap: 4px; align-items: center; }
+.ticks i { display: block; width: 14px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.22); }
+.ticks i.done { background: var(--ink-dim); }
+.ticks i.now { width: 24px; background: var(--accent); }
+.modal-close { min-height: 44px; width: 44px; padding: 0; border: 0; border-radius: 6px; display: grid; place-items: center; color: var(--ink); }
+.modal-close:hover { background: rgba(255,255,255,.08); }
 
 .video-wrap { position: relative; border-radius: var(--radius); overflow: hidden; background: #000; margin-bottom: 8px; }
 .video-wrap[hidden] { display: none; }
@@ -164,7 +168,7 @@ button.call:not(.call-big):focus-visible { outline-color: var(--navy); }
   .modal-card.wide .video-overlay > * { max-width: 720px; }
   /* Reasons: rink left, explanation right, as tall as the clip was, so the window keeps its size. */
   .modal-card.wide #app.why-layout {
-    max-width: none; display: grid; grid-template-columns: 58fr 42fr; gap: 24px; align-items: start;
+    max-width: none; display: grid; grid-template-columns: 60fr 40fr; gap: 32px; align-items: center;
     min-height: min(calc((min(1120px, 94vw) - 32px) * 9 / 16), calc(100dvh - 200px));
   }
   .modal-card.wide .why-layout .rink { max-height: calc(min((min(1120px, 94vw) - 32px) * 9 / 16, 100dvh - 200px) - 64px); }
@@ -228,27 +232,43 @@ button.call:not(.call-big):focus-visible { outline-color: var(--navy); }
   .modal-card .answers + *, .modal-card button.primary + .source { margin-top: 12px; }
 }
 
+/* Over the clip the answer must fit inside the frame: the big figure scales with the window height. */
+@media (min-width: 761px) {
+  .modal-card.wide .video-overlay .figure { font-size: clamp(40px, 10vh, 88px); }
+}
+@media (min-width: 761px) and (max-height: 680px) {
+  .modal-card.wide[data-stage="answer"] .video-overlay { padding-top: 20px; background: rgba(6, 20, 40, .9); }
+  .modal-card.wide .video-overlay .figure-cap { margin: 2px 0 8px; }
+  .modal-card.wide .video-overlay .verdict, .modal-card.wide .video-overlay .scale { margin-bottom: 10px; }
+  .modal-card.wide .video-overlay .source { margin-top: 8px; }
+}
+
 /* Short desktop screens: the pop-up scrolls, so the action button stays pinned at the bottom of it (same as phones). */
 @media (min-width: 761px) and (max-height: 700px) {
   /* Panel buttons only: over the clip the button isn't in the scrolling card, so pinning does nothing there. */
   .modal-card .panel button.primary { width: 100%; position: sticky; bottom: 0; z-index: 2; }
-  /* Backdrop in the panel's colour out to its edges, so scrolled text doesn't show around or under the pinned button. */
-  .modal-card .panel button.primary::before { content: ""; position: absolute; inset: -16px; z-index: -1; background: var(--page-2); pointer-events: none; }
+  /* Backdrop in the window colour out to its edges, so scrolled text doesn't show around or under the pinned button. */
+  .modal-card .panel button.primary::before { content: ""; position: absolute; inset: -16px; z-index: -1; background: var(--page); pointer-events: none; }
   /* The backdrop paints over the button's own background and border, so the pill is redrawn on top of it. */
   .modal-card .panel button.primary::after { content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: inherit; background: var(--accent); pointer-events: none; }
   .modal-card .panel button.primary:hover::after { background: var(--accent-hover); }
   .modal-card .panel button.primary + .source { margin-top: 16px; }
 }
 
+/* Phones, question screen: the rink takes the room the answer text needs later, instead of leaving it empty. */
+@media (max-width: 760px) { .modal-card[data-stage="ask"] .rink { max-height: 50svh; } }
+@media (max-width: 760px) and (max-height: 740px) { .modal-card[data-stage="ask"] .rink { max-height: 40svh; } }
+
 /* Short phones (e.g. 375x667): compact the stacked rink + key so the newest text clears the sticky button. */
 @media (max-width: 599px) and (max-height: 740px) {
   .modal-card .rink { max-height: 24svh; }
   .modal-card .key-list { padding: 4px 10px 6px; gap: 2px 12px; font-size: 12px; line-height: 16px; }
   .modal-card .key-list svg { width: 14px; height: 14px; }
-  .modal-card .headline { font-size: 24px; line-height: 29px; margin-bottom: 6px; }
+  .modal-card .figure { font-size: 52px; }
+  .modal-card .figure-cap { margin-bottom: 10px; }
 }
 
 /* Public-demo label (shown only when the data is synthetic) */
-.demo-note { margin: 0 0 12px; padding: 8px 12px; border-left: 3px solid var(--teal); border-radius: 0 8px 8px 0; background: #EAF6FA; color: var(--navy); font-size: 12px; line-height: 17px; }
+.demo-note { margin: 0 0 12px; padding: 8px 12px; border: 1px solid var(--rink-line); border-radius: 8px; background: var(--ice); color: var(--navy); font-size: 12px; line-height: 17px; }
 .demo-note[hidden] { display: none; }
 .mock-label { margin: 0; padding: 4px 16px; text-align: center; background: var(--navy-2); color: var(--ink-dim); font-weight: 600; font-size: 13px; line-height: 18px; letter-spacing: .02em; }
